@@ -860,7 +860,8 @@ function HeroSection() {
         className="hero-cta-row"
       >
         <a
-          href="#projects"
+          href={("CV-IFADAH.pdf")}
+          download
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -876,7 +877,7 @@ function HeroSection() {
           onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
           onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
         >
-          View my work
+          Download CV
           <ArrowRight size={16} />
         </a>
         <a
@@ -1219,7 +1220,6 @@ function ProjectCard({ project, i }) {
           </div>
         </div>
 
-        {/* HIGHLIGHTS */}
         <div style={{ marginTop: 18 }}>
           <p
             style={{
@@ -1262,10 +1262,76 @@ function ProjectCard({ project, i }) {
 function ProjectsSection() {
   const projects = [
     {
+      title: "HR-Insight",
+      category: "Web Application · HR Analytics & Information System",
+      description:
+        "A web-based HR analytics and information system designed to manage employee, department, and position data while providing workforce insights through interactive dashboards, data visualization, and reporting features.",
+      tech: ["Laravel", "PHP", "MySQL", "Chart.js", "Tailwind CSS"],
+      tags: [
+        "HR Analytics",
+        "Data Visualization",
+        "Database Management",
+        "Dashboard",
+      ],
+      image: asset("/images/hr-insight.png"),
+      gradient: "linear-gradient(135deg, #0d2941, #24578a)",
+      url: "https://hrinsight.infinityfree.io/",
+    },
+
+    {
+      title: "FinTrack",
+      category: "Web Application · Financial Tracking & Analytics",
+      description:
+        "A financial tracking web application designed to help users monitor income, expenses, and financial activity through organized transaction management, financial summaries, and interactive data visualization.",
+      tech: ["React", "JavaScript", "Vite", "Tailwind CSS"],
+      tags: [
+        "Financial Dashboard",
+        "Data Visualization",
+        "Transaction Management",
+        "Analytics",
+      ],
+      image: asset("/images/fintrack.png"),
+      gradient: "linear-gradient(135deg, #172c24, #3d6b58)",
+      url: "https://fintrack-9a93qt4f.manus.space/",
+    },
+
+    {
+      title: "Arus",
+      category: "Web Dashboard · Smart City & Traffic Monitoring",
+      description:
+        "A traffic monitoring platform designed to visualize and monitor traffic conditions in Medan, helping users understand road activity and congestion through an interactive dashboard interface.",
+      tech: ["React", "TypeScript", "Vite"],
+      tags: [
+        "Dashboard",
+        "Traffic Monitoring",
+        "Smart City",
+      ],
+      image: asset("/images/arus.png"),
+      gradient: "linear-gradient(135deg, #162020, #345050)",
+      url: "https://medan-traffi-akzztqby.manus.space/",
+    },
+
+    {
+      title: "Ogek Wali",
+      category: "Web Application · Public Service Information System",
+      description:
+        "A web-based public complaint system designed for Sibolga City, allowing citizens to submit and track reports while helping administrators manage complaints, follow-ups, and supporting information.",
+      tech: ["Laravel", "PHP", "MySQL"],
+      tags: [
+        "Information System",
+        "Public Service",
+        "Database Management",
+      ],
+      image: asset("/images/ogek-wali.png"),
+      gradient: "linear-gradient(135deg, #1c2635, #40516b)",
+      url: "https://webpengaduan.site.je/",
+    },
+
+    {
       title: "Neon Eclipse",
       category: "Landing Page · Event & Entertainment",
       description:
-        "A single-page concert landing site for the fictional festival “Neon Eclipse,” featuring an artist lineup, interactive audio visualizer, event schedule, and ticket waitlist.",
+        "A single-page concert landing site for the fictional festival Neon Eclipse, featuring an artist lineup, interactive audio visualizer, event schedule, and ticket waitlist.",
       tech: ["React", "TypeScript", "Vite"],
       tags: [
         "Interactive UI",
@@ -1278,45 +1344,10 @@ function ProjectsSection() {
     },
 
     {
-      title: "Arus",
-      category: "Web Dashboard · Smart City & Traffic Monitoring",
-      description:
-        "A traffic monitoring platform designed to visualize and monitor traffic conditions in Medan, helping users understand road activity and congestion through an interactive dashboard interface.",
-      tech: ["React", "TypeScript", "Vite"],
-      tags: ["Dashboard", "Traffic Monitoring", "Smart City"],
-      image: asset("/images/arus.png"),
-      gradient: "linear-gradient(135deg, #162020, #345050)",
-      url: "https://medan-traffi-akzztqby.manus.space/",
-    },
-
-    {
-      title: "Ogek Wali",
-      category: "Web Application · Public Service System",
-      description:
-        "A public complaint platform designed specifically for Sibolga City, allowing citizens to submit and track reports while helping administrators manage and respond to community complaints.",
-      tech: ["Laravel", "PHP", "MySQL"],
-      tags: ["Public Service", "Complaint System", "Government"],
-      image: asset("/images/ogek-wali.png"),
-      gradient: "linear-gradient(135deg, #1c2635, #40516b)",
-    },
-
-    {
-      title: "Topup.gg",
-      category: "Web Platform · Gaming & E-Commerce",
-      description:
-        "A modern game top-up website designed for fast and convenient purchases of diamonds, UC, and other in-game currencies.",
-      tech: ["React", "Vite", "Tailwind CSS"],
-      tags: ["E-Commerce", "Gaming", "Responsive UI"],
-      image: asset("/images/topupgg.png"),
-      gradient: "linear-gradient(135deg, #242426, #656569)",
-      url: "https://topupgg-gamma.vercel.app/",
-    },
-
-    {
       title: "Island Hopper",
       category: "Web Platform · Travel & Tourism",
       description:
-        "A travel platform for discovering island destinations, planning routes, exploring itineraries, and organizing trips across Indonesia.",
+        "A travel platform designed to help users discover island destinations, explore itineraries, plan routes, and organize trips across Indonesia.",
       tech: ["React", "TypeScript", "Vite"],
       tags: [
         "Travel Planning",
@@ -1329,30 +1360,52 @@ function ProjectsSection() {
     },
 
     {
-      title: "Nusantara Catering",
-      category: "Website · Food & Catering",
+      title: "Topup.gg",
+      category: "Web Platform · Gaming & E-Commerce",
       description:
-        "A catering website that showcases menus and services while providing users with an easy way to explore catering options.",
+        "A modern game top-up website designed to provide a fast and convenient experience for purchasing diamonds, UC, and other in-game currencies.",
+      tech: ["React", "Vite", "Tailwind CSS"],
+      tags: [
+        "E-Commerce",
+        "Gaming",
+        "Responsive UI",
+      ],
+      image: asset("/images/topupgg.png"),
+      gradient: "linear-gradient(135deg, #242426, #656569)",
+      url: "https://topupgg-gamma.vercel.app/",
+    },
+
+    {
+      title: "Nusantara Catering",
+      category: "Business Website · Food & Catering",
+      description:
+        "A responsive catering website designed to showcase menus, services, and company information while helping users explore available catering options.",
       tech: ["HTML", "CSS", "JavaScript"],
-      tags: ["Menu Showcase", "Catering Service", "Responsive Design"],
+      tags: [
+        "Business Website",
+        "Responsive Design",
+        "UI Development",
+      ],
       image: asset("/images/nusantara-catering.png"),
       gradient: "linear-gradient(135deg, #2a211d, #6b5648)",
       url: "https://padskieee.github.io/NusantaraCatering/",
     },
 
-
     {
       title: "Taskly",
       category: "UI/UX Design · Productivity Platform",
       description:
-        "A productivity and task management platform designed to help users organize tasks, manage daily activities, and stay focused through a clean and intuitive interface.",
+        "A productivity and task management platform concept designed to help users organize tasks, manage daily activities, and improve productivity through a clean and intuitive interface.",
       tech: ["Figma"],
-      tags: ["UI/UX Design", "Productivity", "Task Management"],
+      tags: [
+        "UI/UX Design",
+        "Productivity",
+        "Task Management",
+      ],
       image: asset("/images/taskly.jpg"),
       gradient: "linear-gradient(135deg, #252530, #4b4b62)",
       url: "https://www.figma.com/design/BkIki1rvK3D11NheGAZkVM/Taskly-Web?node-id=16-34&p=f&t=mPkHvKGzGTygFmwG-0",
     },
-
 
     {
       title: "X-ERCISE",
@@ -1360,7 +1413,11 @@ function ProjectsSection() {
       description:
         "A mobile fitness application concept designed to help users monitor workouts, track physical activities, and maintain a healthier lifestyle through an intuitive user experience.",
       tech: ["Figma"],
-      tags: ["Mobile App", "Fitness", "UI/UX Design"],
+      tags: [
+        "Mobile App",
+        "Fitness",
+        "UI/UX Design",
+      ],
       image: asset("/images/x-ercise.jpg"),
       gradient: "linear-gradient(135deg, #1c2524, #42635e)",
       url: "https://www.figma.com/design/NzftHeMZVSBzJPad4R4TBN/X-ERCISE?node-id=0-1&p=f&t=jMdzddwje35UrNbi-0",
@@ -1449,9 +1506,6 @@ function ProjectsSection() {
   );
 }
 
-/* ---------------------------------------------------------
-   Skills
---------------------------------------------------------- */
 function SkillCard({ skill, i }) {
   const [ref, inView] = useReveal(0.1);
   const Icon = skill.icon;
@@ -1624,9 +1678,6 @@ function SkillsSection() {
   );
 }
 
-/* ---------------------------------------------------------
-   Contact
---------------------------------------------------------- */
 function ContactSection() {
   const [ref, inView] = useReveal();
 
@@ -1721,7 +1772,6 @@ function ContactSection() {
           Let's create something people love to use.
         </p>
 
-        {/* Email Button */}
         <a
           href="https://mail.google.com/mail/?view=cm&fs=1&to=ifadahauliasinaga@gmail.com"
           target="_blank"
@@ -1746,7 +1796,6 @@ function ContactSection() {
           ifadahauliasinaga@gmail.com
         </a>
 
-        {/* Social Media Links */}
         <ul
           style={{
             marginTop: 40,
@@ -1829,9 +1878,6 @@ function ContactSection() {
   );
 }
 
-/* ---------------------------------------------------------
-   Page
---------------------------------------------------------- */
 export default function Portfolio() {
   useOriginalScrollMotion();
 
