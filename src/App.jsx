@@ -860,8 +860,9 @@ function HeroSection() {
         className="hero-cta-row"
       >
         <a
-          href={("CV-IFADAH.pdf")}
-          download
+
+        href={asset("images/CV-IFADAH.pdf")}
+        download="CV-Ifadah-Aulia.pdf"
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -1005,6 +1006,7 @@ const techLogos = {
   Blade: "laravel",
   MySQL: "mysql",
   Figma: "figma",
+  "Chart.js": "chartdotjs",
 };
 
 function ProjectCard({ project, i }) {
