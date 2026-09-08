@@ -14,7 +14,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
-
+const asset = (path) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
 const GlobalStyles = () => (
   <style>{`
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
@@ -41,12 +41,34 @@ const GlobalStyles = () => (
     }
     .reveal {
       opacity: 0;
-      transform: translateY(24px);
+      transform: translateY(24px) skewY(var(--scroll-skew, 0deg));
       transition: opacity 0.7s ease, transform 0.7s ease;
     }
     .reveal.in-view {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateY(0) skewY(var(--scroll-skew, 0deg));
+    }
+    .typing-caret {
+      display: inline-block;
+      width: 0.075em;
+      min-width: 3px;
+      height: 0.82em;
+      margin-left: 0.1em;
+      background: var(--primary);
+      vertical-align: -0.04em;
+      box-shadow: 0 0 14px rgba(228, 228, 230, 0.7);
+      animation: typing-blink 0.72s steps(1) infinite;
+    }
+    @keyframes typing-blink { 50% { opacity: 0; } }
+    .about-grid, .projects-grid, .skills-grid, .contact-card {
+      transform: skewY(var(--scroll-skew, 0deg));
+      transition: transform 420ms cubic-bezier(.23,1,.32,1);
+    }
+    [data-scroll-direction="up"] .about-grid,
+    [data-scroll-direction="up"] .projects-grid,
+    [data-scroll-direction="up"] .skills-grid,
+    [data-scroll-direction="up"] .contact-card {
+      filter: saturate(1.08);
     }
     .grad-text {
       background: linear-gradient(90deg, var(--primary), var(--accent), var(--primary));
@@ -68,12 +90,9 @@ function useReveal(threshold = 0.15) {
     if (!el) return;
     const obs = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true);
-          obs.disconnect();
-        }
+        setInView(entry.isIntersecting);
       },
-      { threshold }
+      { threshold, rootMargin: "0px 0px -10% 0px" }
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -95,120 +114,92 @@ function useReveal(threshold = 0.15) {
    text and shrinking the hero font with clamp() (see HeroSection),
    so the line always has room to breathe on small screens.
 --------------------------------------------------------- */
-const SCRAMBLE_CHARS = "_!X$0-+*#";
-
-function getScrambleChar(prevChar) {
-  let char;
-  do {
-    char = SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
-  } while (char === prevChar);
-  return char;
-}
-
-function ScrambleText({ children, speed = 20, delay = 0, className = "", style, inView = false }) {
-  const text = children;
-  const [containerRef, isInView] = useReveal(0.1);
-  const shouldAnimate = inView ? isInView : true;
-
-  const [hasStarted, setHasStarted] = useState(() => !inView && delay <= 0);
-  const [displayText, setDisplayText] = useState(() => "\u00A0".repeat(text.length));
-  const [phase, setPhase] = useState("scramble");
-  const [step, setStep] = useState(0);
-  const intervalRef = useRef(null);
-  const startTimeoutRef = useRef(null);
-
-  function clearStartTimeout() {
-    if (startTimeoutRef.current === null) return;
-    window.clearTimeout(startTimeoutRef.current);
-    startTimeoutRef.current = null;
-  }
-
-  function startAnimation() {
-    setHasStarted(true);
-    setDisplayText("\u00A0".repeat(text.length));
-    setPhase("scramble");
-    setStep(0);
-  }
-
+function useOriginalScrollMotion() {
   useEffect(() => {
-    if (shouldAnimate && !hasStarted) {
-      clearStartTimeout();
-      if (delay <= 0) {
-        startAnimation();
-        return;
-      }
-      startTimeoutRef.current = window.setTimeout(() => {
-        startTimeoutRef.current = null;
-        startAnimation();
-      }, delay * 1000);
-    }
-    return () => clearStartTimeout();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldAnimate, hasStarted, delay, text.length]);
+    let previous = window.scrollY;
+    let skew = 0;
+    let target = 0;
+    let frame = 0;
 
-  useEffect(() => {
-    if (!hasStarted) return;
-    if (intervalRef.current) clearInterval(intervalRef.current);
+    const render = () => {
+      skew += (target - skew) * 0.12;
+      document.documentElement.style.setProperty(
+        "--scroll-skew",
+        `${skew.toFixed(2)}deg`,
+      );
+      target *= 0.86;
+      frame = requestAnimationFrame(render);
+    };
 
-    intervalRef.current = setInterval(() => {
-      if (phase === "scramble") {
-        const maxSteps = text.length * 2;
-        const currentLength = Math.min(step + 1, text.length);
-        const chars = [];
-        for (let i = 0; i < currentLength; i++) {
-          chars.push(getScrambleChar(i > 0 ? chars[i - 1] : undefined));
-        }
-        for (let i = currentLength; i < text.length; i++) {
-          chars.push("\u00A0");
-        }
-        setDisplayText(chars.join(""));
-        if (step < maxSteps - 1) {
-          setStep((p) => p + 1);
-        } else {
-          setPhase("resolve");
-          setStep(0);
-        }
-      } else {
-        const revealedCount = Math.floor(step / 2);
-        const chars = [];
-        for (let i = 0; i < revealedCount && i < text.length; i++) chars.push(text[i]);
-        if (revealedCount < text.length) {
-          chars.push(step % 2 === 0 ? "_" : getScrambleChar());
-        }
-        for (let i = chars.length; i < text.length; i++) chars.push(getScrambleChar());
-        setDisplayText(chars.join(""));
-        if (step < text.length * 2 - 1) {
-          setStep((p) => p + 1);
-        } else {
-          setDisplayText(text);
-          if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-            intervalRef.current = null;
-          }
-        }
-      }
-    }, speed);
+    const onScroll = () => {
+      const delta = window.scrollY - previous;
+      previous = window.scrollY;
+      document.documentElement.dataset.scrollDirection =
+        delta >= 0 ? "down" : "up";
+      target = Math.max(-1.1, Math.min(1.1, delta * -0.03));
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    frame = requestAnimationFrame(render);
 
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(frame);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, step, hasStarted]);
+  }, []);
+}
+
+function TypingText({
+  children,
+  texts,
+  speed = 82,
+  delay = 0,
+  className = "",
+  style,
+}) {
+  const labels = texts || [String(children)];
+  const [index, setIndex] = useState(0);
+  const [count, setCount] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+  const current = labels[index % labels.length];
+
+  useEffect(() => {
+    const isComplete = count >= current.length;
+    const isEmpty = count === 0 && deleting;
+    const wait =
+      !deleting && isComplete
+        ? 1900
+        : isEmpty
+          ? 420
+          : deleting
+            ? Math.max(32, Math.round(speed * 0.52))
+            : speed;
+    const initialDelay = count === 0 && !deleting ? delay : 0;
+
+    const timer = window.setTimeout(() => {
+      if (!deleting && isComplete) setDeleting(true);
+      else if (deleting && isEmpty) {
+        setDeleting(false);
+        setIndex((previous) => (previous + 1) % labels.length);
+      } else {
+        setCount((previous) =>
+          Math.max(0, previous + (deleting ? -1 : 1)),
+        );
+      }
+    }, initialDelay + wait);
+
+    return () => window.clearTimeout(timer);
+  }, [count, current, deleting, delay, labels.length, speed]);
 
   return (
     <span
-      ref={containerRef}
       className={className}
-      style={{
-        display: "inline-block",
-        whiteSpace: "nowrap",       // never wrap mid-scramble
-        overflowWrap: "normal",
-        wordBreak: "keep-all",
-        maxWidth: "100%",
-        ...style,
-      }}
+      role="status"
+      aria-live="polite"
+      style={{ display: "inline-block", whiteSpace: "nowrap", ...style }}
     >
-      {displayText}
+      {current.slice(0, count)}
+      <span className="typing-caret" aria-hidden="true" />
     </span>
   );
 }
@@ -829,14 +820,15 @@ function HeroSection() {
         <span style={{ display: "block", fontWeight: 700 }}>
           Designing experiences
         </span>
-        <ScrambleText
+        <TypingText
           className="grad-text"
           style={{ display: "block", fontWeight: 700 }}
-          speed={30}
-          delay={0.3}
+          texts={["that feel alive", "that feel useful", "that feel human"]}
+          speed={82}
+          delay={0}
         >
           that feel alive
-        </ScrambleText>
+        </TypingText>
       </h1>
 
       <p
@@ -973,7 +965,7 @@ function AboutSection() {
             }}
           >
             <img
-              src="profile.jpg"
+              src={asset("images/profile.jpg")}
               alt="Ifadah Aulia"
               style={{
                 position: "absolute",
@@ -1280,7 +1272,7 @@ function ProjectsSection() {
         "Audio Visualizer",
         "Design System",
       ],
-      image: "/images/neon-eclipse.png",
+      image: asset("/images/neon-eclipse.png"),
       gradient: "linear-gradient(135deg, #1e1e20, #58585e)",
       url: "https://neoneclipse.netlify.app/",
     },
@@ -1292,7 +1284,7 @@ function ProjectsSection() {
         "A traffic monitoring platform designed to visualize and monitor traffic conditions in Medan, helping users understand road activity and congestion through an interactive dashboard interface.",
       tech: ["React", "TypeScript", "Vite"],
       tags: ["Dashboard", "Traffic Monitoring", "Smart City"],
-      image: "/images/arus.png",
+      image: asset("/images/arus.png"),
       gradient: "linear-gradient(135deg, #162020, #345050)",
       url: "https://medan-traffi-akzztqby.manus.space/",
     },
@@ -1304,7 +1296,7 @@ function ProjectsSection() {
         "A public complaint platform designed specifically for Sibolga City, allowing citizens to submit and track reports while helping administrators manage and respond to community complaints.",
       tech: ["Laravel", "PHP", "MySQL"],
       tags: ["Public Service", "Complaint System", "Government"],
-      image: "/images/ogek-wali.png",
+      image: asset("/images/ogek-wali.png"),
       gradient: "linear-gradient(135deg, #1c2635, #40516b)",
     },
 
@@ -1315,7 +1307,7 @@ function ProjectsSection() {
         "A modern game top-up website designed for fast and convenient purchases of diamonds, UC, and other in-game currencies.",
       tech: ["React", "Vite", "Tailwind CSS"],
       tags: ["E-Commerce", "Gaming", "Responsive UI"],
-      image: "/images/topupgg.png",
+      image: asset("/images/topupgg.png"),
       gradient: "linear-gradient(135deg, #242426, #656569)",
       url: "https://topupgg-gamma.vercel.app/",
     },
@@ -1331,7 +1323,7 @@ function ProjectsSection() {
         "Interactive UI",
         "Responsive Design",
       ],
-      image: "/images/island-hopper.png",
+      image: asset("/images/island-hopper.png"),
       gradient: "linear-gradient(135deg, #1a1f24, #4b6570)",
       url: "https://island-hopper-zeta.vercel.app/",
     },
@@ -1343,7 +1335,7 @@ function ProjectsSection() {
         "A catering website that showcases menus and services while providing users with an easy way to explore catering options.",
       tech: ["HTML", "CSS", "JavaScript"],
       tags: ["Menu Showcase", "Catering Service", "Responsive Design"],
-      image: "/images/nusantara-catering.png",
+      image: asset("/images/nusantara-catering.png"),
       gradient: "linear-gradient(135deg, #2a211d, #6b5648)",
       url: "https://padskieee.github.io/NusantaraCatering/",
     },
@@ -1356,7 +1348,7 @@ function ProjectsSection() {
         "A productivity and task management platform designed to help users organize tasks, manage daily activities, and stay focused through a clean and intuitive interface.",
       tech: ["Figma"],
       tags: ["UI/UX Design", "Productivity", "Task Management"],
-      image: "/images/taskly.jpg",
+      image: asset("/images/taskly.jpg"),
       gradient: "linear-gradient(135deg, #252530, #4b4b62)",
       url: "https://www.figma.com/design/BkIki1rvK3D11NheGAZkVM/Taskly-Web?node-id=16-34&p=f&t=mPkHvKGzGTygFmwG-0",
     },
@@ -1369,7 +1361,7 @@ function ProjectsSection() {
         "A mobile fitness application concept designed to help users monitor workouts, track physical activities, and maintain a healthier lifestyle through an intuitive user experience.",
       tech: ["Figma"],
       tags: ["Mobile App", "Fitness", "UI/UX Design"],
-      image: "/images/x-ercise.jpg",
+      image: asset("/images/x-ercise.jpg"),
       gradient: "linear-gradient(135deg, #1c2524, #42635e)",
       url: "https://www.figma.com/design/NzftHeMZVSBzJPad4R4TBN/X-ERCISE?node-id=0-1&p=f&t=jMdzddwje35UrNbi-0",
     },
@@ -1841,6 +1833,8 @@ function ContactSection() {
    Page
 --------------------------------------------------------- */
 export default function Portfolio() {
+  useOriginalScrollMotion();
+
   return (
     <div className="portfolio-root">
       <GlobalStyles />
