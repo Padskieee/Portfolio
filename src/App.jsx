@@ -933,50 +933,52 @@ function AboutSection() {
 
   return (
     <section id="about" style={{ position: "relative", margin: "0 auto", maxWidth: 1000, padding: "112px 24px", scrollMarginTop: 96 }}>
-      <div ref={ref} className={`reveal ${inView ? "in-view" : ""} about-grid`}>
-        <div>
-          <span className="font-display" style={{ fontFamily: "monospace", fontSize: 14, textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--primary)" }}>
-            About
-          </span>
-          <h2 className="font-display" style={{ marginTop: 16, fontSize: 30, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.25 }}>
-            A fresh graduate who's always chasing the next thing to learn.
-          </h2>
-          <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 16, lineHeight: 1.7, color: "var(--muted-foreground)" }}>
-            <p style={{ margin: 0 }}>
-              I'm Ifadah Aulia, a fresh graduate from Brawijaya University (2023–2026). I don't have formal work experience yet, but I've spent that time building things on my own — from personal projects to this very portfolio.
-            </p>
-            <p style={{ margin: 0 }}>
-              My interests sit across web development, UI/UX, web design, and working with data — I enjoy understanding not just how something looks, but how it works underneath and what the data behind it is telling me.
-            </p>
-            <p style={{ margin: 0 }}>
-              What keeps me going is a genuine love for learning. Every project is a chance to pick up a new framework, sharpen my design instincts, or get better at handling data than I was before.
-            </p>
+      <div ref={ref} className={`reveal ${inView ? "in-view" : ""}`}>
+        <div className="about-grid">
+          <div>
+            <span className="font-display" style={{ fontFamily: "monospace", fontSize: 14, textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--primary)" }}>
+              About
+            </span>
+            <h2 className="font-display" style={{ marginTop: 16, fontSize: 30, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.25 }}>
+              A fresh graduate who's always chasing the next thing to learn.
+            </h2>
+            <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 16, lineHeight: 1.7, color: "var(--muted-foreground)" }}>
+              <p style={{ margin: 0 }}>
+                I'm Ifadah Aulia, a fresh graduate from Brawijaya University (2023–2026). I don't have formal work experience yet, but I've spent that time building things on my own — from personal projects to this very portfolio.
+              </p>
+              <p style={{ margin: 0 }}>
+                My interests sit across web development, UI/UX, web design, and working with data — I enjoy understanding not just how something looks, but how it works underneath and what the data behind it is telling me.
+              </p>
+              <p style={{ margin: 0 }}>
+                What keeps me going is a genuine love for learning. Every project is a chance to pick up a new framework, sharpen my design instincts, or get better at handling data than I was before.
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div className="about-photo-wrap">
-          <div
-            style={{
-              position: "relative",
-              width: "100%",
-              aspectRatio: "4 / 5",
-              borderRadius: 20,
-              overflow: "hidden",
-              border: "1px solid var(--border)",
-              background: "var(--secondary)",
-            }}
-          >
-            <img
-              src={asset("images/profile.jpg")}
-              alt="Ifadah Aulia"
+          <div className="about-photo-wrap">
+            <div
               style={{
-                position: "absolute",
-                inset: 0,
+                position: "relative",
                 width: "100%",
-                height: "100%",
-                objectFit: "cover",
+                aspectRatio: "4 / 5",
+                borderRadius: 20,
+                overflow: "hidden",
+                border: "1px solid var(--border)",
+                background: "var(--secondary)",
               }}
-            />
+            >
+              <img
+                src={asset("images/profile.jpg")}
+                alt="Ifadah Aulia"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>
