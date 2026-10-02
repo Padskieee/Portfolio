@@ -1009,6 +1009,7 @@ const techLogos = {
   MySQL: "mysql",
   Figma: "figma",
   "Chart.js": "chartdotjs",
+  "Node.js": "nodedotjs",
 };
 
 function ProjectCard({ project, i }) {
@@ -1300,6 +1301,24 @@ function ProjectsSection() {
     },
 
     {
+      title: "ProfitRiddle",
+      category: "Web Application · Business Analytics",
+      description:
+        "A business analytics web application for Indonesian small businesses to analyze costs, profit margins, break-even points, and sales targets through interactive pricing scenarios.",
+      tech: ["React", "TypeScript", "Vite", "Tailwind CSS", "Node.js"],
+      tags: [
+        "Business Analytics",
+        "Financial Analysis",
+        "Scenario Analysis",
+        "Data Visualization",
+        "AI Assistant",
+      ],
+      image: asset("/images/profit-riddle.png"),
+      gradient: "linear-gradient(135deg, #172c24, #3d6b58)",
+      url: "https://URL-PROFITRIDDLE-KAMU.vercel.app",
+    },
+
+    {
       title: "Arus",
       category: "Web Dashboard · Smart City & Traffic Monitoring",
       description:
@@ -1517,22 +1536,15 @@ function SkillCard({ skill, i }) {
     <div
       ref={ref}
       className={`reveal ${inView ? "in-view" : ""}`}
-      style={{
-        transitionDelay: `${(i % 3) * 0.08}s`,
-        borderRadius: 16,
-        border: "1px solid var(--border)",
-        background: "rgba(20,17,29,0.5)",
-        padding: 24,
-        backdropFilter: "blur(4px)",
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(210,210,214,0.4)")}
-      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
+      style={{ transitionDelay: `${(i % 3) * 0.08}s` }}
     >
-      <span style={{ display: "inline-flex", height: 44, width: 44, alignItems: "center", justifyContent: "center", borderRadius: 12, border: "1px solid rgba(210,210,214,0.25)", background: "rgba(210,210,214,0.08)", color: "var(--primary)" }}>
-        <Icon size={20} />
-      </span>
-      <h3 className="font-display" style={{ marginTop: 16, fontSize: 18, fontWeight: 600, letterSpacing: "-0.01em" }}>{skill.title}</h3>
-      <p style={{ marginTop: 8, fontSize: 14, lineHeight: 1.7, color: "var(--muted-foreground)" }}>{skill.description}</p>
+      <Icon size={28} style={{ color: "var(--primary)" }} />
+      <h3 className="font-display" style={{ marginTop: 16, fontSize: 20, fontWeight: 600, letterSpacing: "-0.01em" }}>
+        {skill.title}
+      </h3>
+      <p style={{ marginTop: 8, fontSize: 15, lineHeight: 1.7, color: "var(--muted-foreground)" }}>
+        {skill.description}
+      </p>
     </div>
   );
 }
@@ -1555,6 +1567,7 @@ function LogoMarquee() {
     { slug: "mysql", alt: "MySQL" },
     { slug: "javascript", alt: "JavaScript" },
     { slug: "git", alt: "Git" },
+    { slug: "nodedotjs", alt: "Node.js" },
   ];
 
   const track = [...tools, ...tools];
@@ -1716,13 +1729,8 @@ function ContactSection() {
         className={`reveal ${inView ? "in-view" : ""}`}
         style={{
           position: "relative",
-          overflow: "hidden",
-          borderRadius: 24,
-          border: "1px solid rgba(210,210,214,0.25)",
-          background: "rgba(20,17,29,0.6)",
           padding: "48px 24px",
           textAlign: "center",
-          backdropFilter: "blur(10px)",
         }}
       >
         <div
