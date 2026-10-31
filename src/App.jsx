@@ -392,7 +392,11 @@ const CSS = `
   position: absolute;
   inset: 0 -3% -4%;
   transform-origin: 50% 0;
-  background: #080808 url(var(--img)) 50% 0 / cover no-repeat;
+  background-color: #080808;
+  background-image: var(--img);
+  background-position: 50% 0;
+  background-size: cover;
+  background-repeat: no-repeat;
   transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
   transform: scale(var(--z, 1)) translateY(var(--py, 0%));
 }
@@ -2272,7 +2276,11 @@ export default function App() {
               .style.setProperty("--z", "1")
           }
         >
-          <div className="hero-bg" aria-hidden="true">
+          <div
+            className="hero-bg"
+            aria-hidden="true"
+            style={{ backgroundImage: `url("${asset("images/profile.jpg?v=2")}")` }}
+          >
             <HeroGL heroRef={heroRef} src={asset("images/profile.jpg?v=2")} />
           </div>
           <div className="hero-ov" aria-hidden="true" />
