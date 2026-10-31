@@ -2251,7 +2251,7 @@ export default function App() {
         <section
           className="hero"
           ref={heroRef}
-          style={{ "--img": `url("${asset("images/profile.jpg")}")` }}
+          style={{ "--img": `url("${asset("images/profile.jpg?v=2")}")` }}
           onMouseMove={(e) => {
             if (
               !matchMedia("(pointer:fine)").matches ||
@@ -2273,7 +2273,7 @@ export default function App() {
           }
         >
           <div className="hero-bg" aria-hidden="true">
-            <HeroGL heroRef={heroRef} src={asset("images/profile.jpg")} />
+            <HeroGL heroRef={heroRef} src={asset("images/profile.jpg?v=2")} />
           </div>
           <div className="hero-ov" aria-hidden="true" />
 
