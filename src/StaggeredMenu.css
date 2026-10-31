@@ -1,0 +1,345 @@
+/* Staggered menu — styled for the portfolio (black / white / orange).
+   Rules are prefixed with .pf so they win over the page's button/link resets. */
+
+.pf .staggered-menu-wrapper {
+  position: relative;
+  z-index: 40;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.pf .staggered-menu-wrapper.fixed-wrapper {
+  position: fixed;
+  inset: 0;
+  width: auto;
+  height: auto;
+  overflow: hidden;
+}
+
+/* header + toggle */
+.pf .staggered-menu-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: max(28px, env(safe-area-inset-top, 0px)) 3% 0;
+  pointer-events: none;
+  z-index: 20;
+}
+.pf .staggered-menu-header > * {
+  pointer-events: auto;
+}
+.pf .sm-logo {
+  display: flex;
+  align-items: center;
+  margin-right: auto;
+}
+.pf .sm-logo-img {
+  display: block;
+  height: 24px;
+  width: auto;
+}
+.pf .sm-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 50px;
+  padding: 0 20px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.5);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  font: 400 16px/1 var(--u);
+  letter-spacing: 0;
+  transition: border-color 0.25s;
+}
+.pf .sm-toggle:hover {
+  border-color: var(--sm-accent, #ff630f);
+}
+.pf .sm-toggle-textWrap {
+  position: relative;
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.pf .sm-toggle-textInner {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+.pf .sm-toggle-line {
+  display: block;
+  height: 1em;
+  line-height: 1;
+}
+.pf .sm-icon {
+  position: relative;
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+}
+.pf .sm-icon-line {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+}
+
+/* sliding layers + panel */
+.pf .sm-prelayers,
+.pf .staggered-menu-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: clamp(320px, 44vw, 560px);
+}
+.pf [data-position="left"] .sm-prelayers,
+.pf [data-position="left"] .staggered-menu-panel {
+  right: auto;
+  left: 0;
+}
+.pf .sm-prelayers {
+  bottom: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+.pf .sm-prelayer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+}
+.pf .staggered-menu-panel {
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  padding: 120px 3% 36px 40px;
+  overflow-y: auto;
+  background: #000;
+  border-left: 1px solid #333;
+  pointer-events: auto;
+}
+.pf .sm-panel-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* items */
+.pf .sm-panel-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  counter-reset: smItem;
+}
+.pf .sm-panel-itemWrap {
+  position: relative;
+  overflow: hidden;
+  padding: 0.04em 0;
+  line-height: 1;
+}
+.pf .sm-panel-item {
+  position: relative;
+  display: inline-block;
+  padding-right: 1.6em;
+  color: #fff;
+  font: 500 clamp(46px, 6.2vw, 88px) / 1 var(--d);
+  letter-spacing: -0.04em;
+  transition: color 0.25s;
+}
+.pf .sm-panel-item:hover,
+.pf .sm-panel-item:focus-visible {
+  color: var(--sm-accent, #ff630f);
+}
+.pf .sm-panel-itemLabel {
+  display: inline-block;
+  transform-origin: 50% 100%;
+  will-change: transform;
+}
+.pf .sm-panel-list[data-numbering] .sm-panel-item::after {
+  counter-increment: smItem;
+  content: counter(smItem, decimal-leading-zero);
+  position: absolute;
+  top: 0.18em;
+  right: 0;
+  font: 400 14px/1 var(--u);
+  letter-spacing: 0.04em;
+  color: var(--sm-accent, #ff630f);
+  opacity: var(--sm-num-opacity, 0);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* socials */
+.pf .sm-socials {
+  margin-top: auto;
+  padding-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pf .sm-socials-title {
+  margin: 0;
+  font: 400 12px/1.2 var(--u);
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pf .sm-socials-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+}
+.pf .sm-socials-link {
+  display: inline-block;
+  padding: 2px 0;
+  color: #fff;
+  font: 400 18px/1.2 var(--u);
+  transition: color 0.25s;
+}
+.pf .sm-socials-link:hover,
+.pf .sm-socials-link:focus-visible {
+  color: var(--sm-accent, #ff630f);
+}
+
+.pf .sm-panelExtra {
+  margin-top: auto;
+  padding-top: 28px;
+}
+.pf .sm-panelExtra + .sm-socials {
+  margin-top: 0;
+}
+
+@media (max-width: 700px) {
+  .pf .sm-prelayers,
+  .pf .staggered-menu-panel {
+    width: 100%;
+  }
+  .pf .staggered-menu-panel {
+    padding: 104px 6% 32px;
+  }
+  /* everything centred on phones */
+  .pf .sm-panel-inner {
+    align-items: center;
+    text-align: center;
+  }
+  .pf .sm-panel-list {
+    align-items: center;
+    margin-block: auto;
+  }
+  .pf .sm-panel-item {
+    padding-right: 0;
+    font-size: clamp(44px, 13vw, 64px);
+  }
+  .pf .sm-panel-list[data-numbering] .sm-panel-item::after {
+    display: none;
+  }
+  .pf .sm-panelExtra {
+    margin-top: 0;
+    display: flex;
+    justify-content: center;
+  }
+  .pf .sm-socials {
+    margin-top: 0;
+    align-items: center;
+  }
+  .pf .sm-socials-list {
+    justify-content: center;
+  }
+}
+@media (max-width: 560px) {
+  .pf .staggered-menu-header {
+    padding-top: max(20px, env(safe-area-inset-top, 0px));
+  }
+  .pf .sm-toggle {
+    min-height: 44px;
+    padding: 0 16px;
+  }
+}
+
+.pf .staggered-menu-panel .sm-pacman-menu,
+.staggered-menu-wrapper .sm-pacman-menu {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 220px;
+  height: 120px;
+  flex: 0 0 120px;
+
+  align-self: flex-start;
+  margin: -15px 0 -5px -65px;
+  top: 15px;
+  padding: 0;
+
+  overflow: visible;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.pf .staggered-menu-panel .sm-pacman-animation,
+.staggered-menu-wrapper .sm-pacman-animation {
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  transform: scale(0.8);
+  transform-origin: center center;
+}
+
+@media (max-width: 700px) {
+  .pf .staggered-menu-panel .sm-panel-inner,
+  .staggered-menu-wrapper .sm-panel-inner {
+    align-items: center;
+    text-align: center;
+  }
+
+  .pf .staggered-menu-panel .sm-pacman-menu,
+  .staggered-menu-wrapper .sm-pacman-menu {
+    align-self: center;
+
+    width: 180px;
+    height: 100px;
+    flex-basis: 100px;
+
+    margin: -10px 0 0;
+    left: 0;
+    top: 20;
+  }
+
+  .pf .staggered-menu-panel .sm-pacman-animation,
+  .staggered-menu-wrapper .sm-pacman-animation {
+    transform: scale(0.8);
+  }
+
+  .pf .staggered-menu-panel .sm-panel-list,
+  .staggered-menu-wrapper .sm-panel-list {
+    align-self: center;
+    margin-top: 0;
+  }
+}

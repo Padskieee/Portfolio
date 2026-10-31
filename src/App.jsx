@@ -1,1912 +1,2787 @@
 import React, { useEffect, useRef, useState } from "react";
-import * as THREE from "three";
-import {
-  Sparkles,
-  ArrowRight,
-  ArrowUpRight,
-  Mail,
-  Compass,
-  PenTool,
-  Layers,
-  Waypoints,
-  Gauge,
-  Users,
-  Menu,
-  X,
-} from "lucide-react";
-const asset = (path) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
-const GlobalStyles = () => (
-  <style>{`
-    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+import StaggeredMenu from "./StaggeredMenu.jsx";
+import "@fontsource-variable/mona-sans/wdth.css";
+import { COPY, PROJECTS_ID, SERVICES_ID } from "./i18n.js";
+import AnimatedCat from "./components/ui/AnimatedCat";
+import TechText from "./components/ui/TechText";
+import VariableProximity from './components/ui/VariableProximity';
+import CircularText from './components/ui/CircularText';
+import FlexCarousel from "./components/ui/FlexCarousel";
+import { TECH_LOGOS, TechLogo } from "./components/ui/TechLogos";
+import Dither from "./components/ui/Dither";
+import ProjectDropdown from "./components/ui/ProjectDropdown";
 
-    .portfolio-root {
-      --background: #0b0b0c;
-      --foreground: #f3f3f2;
-      --card: #17171a;
-      --primary: #b9b9bd;
-      --accent: #e4e4e6;
-      --muted-foreground: #9a9a9f;
-      --secondary: #201f22;
-      --border: rgba(210, 210, 214, 0.14);
-      background: var(--background);
-      color: var(--foreground);
-      font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
-      scroll-behavior: smooth;
-      position: relative;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-    .portfolio-root .font-display {
-      font-family: 'Space Grotesk', ui-sans-serif, sans-serif;
-    }
-    .reveal {
-      opacity: 0;
-      transform: translateY(24px) skewY(var(--scroll-skew, 0deg));
-      transition: opacity 0.7s ease, transform 0.7s ease;
-    }
-    .reveal.in-view {
-      opacity: 1;
-      transform: translateY(0) skewY(var(--scroll-skew, 0deg));
-    }
-    .typing-caret {
-      display: inline-block;
-      width: 0.075em;
-      min-width: 3px;
-      height: 0.82em;
-      margin-left: 0.1em;
-      background: var(--primary);
-      vertical-align: -0.04em;
-      box-shadow: 0 0 14px rgba(228, 228, 230, 0.7);
-      animation: typing-blink 0.72s steps(1) infinite;
-    }
-    @keyframes typing-blink { 50% { opacity: 0; } }
-    .about-grid, .projects-grid, .skills-grid, .contact-card {
-      transform: skewY(var(--scroll-skew, 0deg));
-      transition: transform 420ms cubic-bezier(.23,1,.32,1);
-    }
-    [data-scroll-direction="up"] .about-grid,
-    [data-scroll-direction="up"] .projects-grid,
-    [data-scroll-direction="up"] .skills-grid,
-    [data-scroll-direction="up"] .contact-card {
-      filter: saturate(1.08);
-    }
-    .grad-text {
-      background: linear-gradient(90deg, var(--primary), var(--accent), var(--primary));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-  `}</style>
-);
+const asset = (p) => `${import.meta.env.BASE_URL}${p.replace(/^\//, "")}`;
 
-/* ---------------------------------------------------------
-   Hook: fade/slide up on scroll into view
---------------------------------------------------------- */
-function useReveal(threshold = 0.15) {
-  const ref = useRef(null);
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        setInView(entry.isIntersecting);
-      },
-      { threshold, rootMargin: "0px 0px -10% 0px" }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [threshold]);
-  return [ref, inView];
+const PERSON = {
+  email: "ifadahauliasinaga@gmail.com",
+  socials: [
+    [
+      "LinkedIn",
+      "https://www.linkedin.com/in/ifadah-aulia-muhti-sinaga-15a366289/",
+    ],
+    ["GitHub", "https://github.com/Padskieee"],
+    ["Instagram", "https://www.instagram.com/ifadahaulia_/"],
+  ],
+};
+
+const PROJECTS = [
+  {
+    title: "HR-Insight",
+    category: "data",
+    kind: "Analytics Dashboard",
+    cat: "HR Analytics & Information System",
+    image: "images/hr-insight.png",
+    url: "https://hrinsight.infinityfree.io/",
+    tech: ["Laravel", "PHP", "MySQL", "Chart.js", "Tailwind CSS"],
+    tags: [
+      "HR Analytics",
+      "Data Visualization",
+      "Database Management",
+      "Dashboard",
+    ],
+    text:
+      "A web-based HR analytics and information system for managing " +
+      "employee, department, and position data, with workforce insights" +
+      " through interactive dashboards, data visualization, and " +
+      "reporting.",
+  },
+  {
+    title: "FinTrack",
+    category: "data",
+    kind: "Financial Dashboard",
+    cat: "Financial Tracking & Analytics",
+    image: "images/fintrack.png",
+    url: "https://fintrack-9a93qt4f.manus.space/",
+    tech: ["React", "JavaScript", "Vite", "Tailwind CSS"],
+    tags: [
+      "Financial Dashboard",
+      "Data Visualization",
+      "Transaction Management",
+      "Analytics",
+    ],
+    text:
+      "A financial tracking app for monitoring income, expenses, and " +
+      "financial activity through organized transaction management, " +
+      "summaries, and interactive charts.",
+  },
+  {
+    title: "ProfitRiddle",
+    category: "data",
+    kind: "Business Analytics Tool",
+    cat: "Business Analytics",
+    image: "images/profit-riddle.png",
+    url: "",
+    tech: ["React", "TypeScript", "Vite", "Tailwind CSS", "Node.js"],
+    tags: [
+      "Business Analytics",
+      "Financial Analysis",
+      "Scenario Analysis",
+      "Data Visualization",
+      "AI Assistant",
+    ],
+    text:
+      "A business analytics app for Indonesian small businesses to " +
+      "analyze costs, profit margins, break-even points, and sales " +
+      "targets through interactive pricing scenarios.",
+  },
+  {
+    title: "Arus",
+    category: "data",
+    kind: "Monitoring Dashboard",
+    cat: "Smart City & Traffic Monitoring",
+    image: "images/arus.png",
+    url: "https://medan-traffi-akzztqby.manus.space/",
+    tech: ["React", "TypeScript", "Vite"],
+    tags: ["Dashboard", "Traffic Monitoring", "Smart City"],
+    text:
+      "A traffic monitoring platform that visualizes road activity and " +
+      "congestion in Medan through an interactive dashboard.",
+  },
+  {
+    title: "Ogek Wali",
+    category: "web",
+    kind: "Full Stack Web App",
+    cat: "Public Service Information System",
+    image: "images/ogek-wali.png",
+    url: "https://webpengaduan.site.je/",
+    tech: ["Laravel", "PHP", "MySQL"],
+    tags: ["Information System", "Public Service", "Database Management"],
+    text:
+      "A public complaint system for Sibolga City. Citizens submit and " +
+      "track reports; administrators manage complaints, follow-ups, and" +
+      " supporting information.",
+  },
+  {
+    title: "Neon Eclipse",
+    category: "web",
+    kind: "Landing Page",
+    cat: "Event & Entertainment",
+    image: "images/neon-eclipse.png",
+    url: "https://neoneclipse.netlify.app/",
+    tech: ["React", "TypeScript", "Vite"],
+    tags: ["Interactive UI", "Audio Visualizer", "Design System"],
+    text:
+      "A single-page concert site for the fictional festival Neon " +
+      "Eclipse, with an artist lineup, audio visualizer, event " +
+      "schedule, and ticket waitlist.",
+  },
+  {
+    title: "Island Hopper",
+    category: "web",
+    kind: "Landing Page",
+    cat: "Travel & Tourism",
+    image: "images/island-hopper.png",
+    url: "https://island-hopper-zeta.vercel.app/",
+    tech: ["React", "TypeScript", "Vite"],
+    tags: ["Travel Planning", "Interactive UI", "Responsive Design"],
+    text:
+      "A travel platform for discovering island destinations, exploring" +
+      " itineraries, planning routes, and organizing trips across " +
+      "Indonesia.",
+  },
+  {
+    title: "Topup.gg",
+    category: "web",
+    kind: "Landing Page",
+    cat: "Gaming & E-Commerce",
+    image: "images/topupgg.png",
+    url: "https://topupgg-gamma.vercel.app/",
+    tech: ["React", "Vite", "Tailwind CSS"],
+    tags: ["E-Commerce", "Gaming", "Responsive UI"],
+    text:
+      "A game top-up website for a fast, convenient way to buy " +
+      "diamonds, UC, and other in-game currencies.",
+  },
+  {
+    title: "Nusantara Catering",
+    category: "web",
+    kind: "Landing Page / Catalog",
+    cat: "Food & Catering",
+    image: "images/nusantara-catering.png",
+    url: "https://padskieee.github.io/NusantaraCatering/",
+    tech: ["HTML", "CSS", "JavaScript"],
+    tags: ["Business Website", "Responsive Design", "UI Development"],
+    text:
+      "A responsive catering website showcasing menus, services, and " +
+      "company information.",
+  },
+  {
+    title: "Taskly",
+    category: "uiux",
+    kind: "Web UI/UX Design",
+    cat: "Productivity Platform",
+    image: "images/taskly.jpg",
+    url: "https://www.figma.com/design/BkIki1rvK3D11NheGAZkVM/Taskly-Web?node-id=16-34&p=f&t=mPkHvKGzGTygFmwG-0",
+    tech: ["Figma"],
+    tags: ["UI/UX Design", "Productivity", "Task Management"],
+    text:
+      "A task management platform concept for organizing tasks and " +
+      "daily activities through a clean, intuitive interface.",
+  },
+  {
+    title: "X-ERCISE",
+    category: "uiux",
+    kind: "Mobile App UI/UX",
+    cat: "Fitness & Health",
+    image: "images/x-ercise.jpg",
+    url: "https://www.figma.com/design/NzftHeMZVSBzJPad4R4TBN/X-ERCISE?node-id=0-1&p=f&t=jMdzddwje35UrNbi-0",
+    tech: ["Figma"],
+    tags: ["Mobile App", "Fitness", "UI/UX Design"],
+    text:
+      "A mobile fitness app concept for tracking workouts and physical " +
+      "activity with an intuitive experience.",
+  },
+];
+
+const SERVICES = [
+  {
+    title: "Web Development",
+    scope: "React / Laravel / PHP / MySQL / Tailwind CSS",
+    text:
+      "Responsive websites and web applications, from landing pages to " +
+      "database-backed systems.",
+    out: "Web apps, landing pages, business websites.",
+  },
+  {
+    title: "Data Analysis",
+    scope: "Excel / Dashboards / Chart.js / Data visualization",
+    text:
+      "Turning raw data into dashboards and summaries that people can " +
+      "act on. I recently started learning Excel and I'm building " +
+      "towards a career as a data analyst.",
+    out: "HR-Insight, FinTrack, ProfitRiddle, Arus.",
+  },
+  {
+    title: "UI/UX Design",
+    scope: "Interface design / Prototypes / Figma",
+    text:
+      "Interface concepts for web and mobile, designed in Figma before " +
+      "they are built.",
+    out: "Taskly (web), X-ERCISE (mobile).",
+  },
+];
+
+const CERTS = [
+  { title: "Google Analytics Certification (2026)", issuer: "Google", date: "2026-10-29", image: "images/certs/google-analytics.jpg", pdf: "images/certs/google-analytics.jpg" },
+  { title: "Data Analyst untuk Persiapan Sertifikasi BNSP", issuer: "YEC.co.id", date: "2026-10-22", image: "images/certs/data-analyst-yec.jpg", pdf: "certs/data-analyst-yec.pdf" },
+  { title: "The Complete Microsoft Excel Course: Master All Levels", issuer: "Udemy", date: "2026-10-18", image: "images/certs/excel-udemy.jpg", pdf: "certs/excel-udemy.pdf" },
+  { title: "TOEFL ITP Certificate of Achievement (Score 473)", issuer: "The TOEFL Program / Universitas Brawijaya", date: "2026-05-19", image: "images/certs/toefl-itp.jpg", pdf: "certs/toefl-itp.pdf" },
+  { title: "Pemrogram Basisdata (Database Programmer)", issuer: "BNSP / LSP Teknologi Digital", date: "2026-01-20", image: "images/certs/bnsp-database-programmer.jpg", pdf: "certs/bnsp-database-programmer.pdf" },
+  { title: "LIA Preparation Course for the IELTS Test", issuer: "Lembaga Bahasa LIA", date: "2025-12-11", image: "images/certs/lia-ielts-course.jpg", pdf: "certs/lia-ielts-course.pdf" },
+  { title: "Microsoft Office Desktop Application", issuer: "Trust Training Partners", date: "2025-12-04", image: "images/certs/microsoft-office-trust.jpg", pdf: "certs/microsoft-office-trust.pdf" },
+];
+
+const LINKS = [
+  ["about", "#about"],
+  ["projects", "#projects"],
+  ["skills", "#skills"],
+  ["certificates", "#certificates"],
+  ["contact", "#contact"],
+];
+
+const CSS = `
+@font-face {
+  font-family: MonaSemi;
+  src: url("https://cdn.jsdelivr.net/gh/github/mona-sans@main/fonts/webfonts/static/MonaSansSemiCondensed-ExtraLight.woff2")
+    format("woff2");
+  font-weight: 250;
+  font-display: swap;
+}
+@font-face {
+  font-family: MonaSemi;
+  src: url("https://cdn.jsdelivr.net/gh/github/mona-sans@main/fonts/webfonts/static/MonaSansSemiCondensed-Medium.woff2")
+    format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: Mona;
+  src: url("https://cdn.jsdelivr.net/gh/github/mona-sans@main/fonts/webfonts/static/MonaSans-Regular.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-display: swap;
 }
 
-/* ---------------------------------------------------------
-   ScrambleText — decode/glitch text reveal (ported from
-   the "SpecialText" component, without the motion/react
-   dependency which isn't available in this environment).
-   Random characters resolve left-to-right into the real text.
-
-   MOBILE FIX: the wrapping span now forces `white-space: nowrap`
-   so the line never re-wraps mid-animation (the old behaviour
-   let the randomly-sized scramble characters flip the text
-   between 1 and 2 lines every frame, which read as "berantakan").
-   The width fluctuation this causes is absorbed by centering the
-   text and shrinking the hero font with clamp() (see HeroSection),
-   so the line always has room to breathe on small screens.
---------------------------------------------------------- */
-function useOriginalScrollMotion() {
-  useEffect(() => {
-    let previous = window.scrollY;
-    let skew = 0;
-    let target = 0;
-    let frame = 0;
-
-    const render = () => {
-      skew += (target - skew) * 0.12;
-      document.documentElement.style.setProperty(
-        "--scroll-skew",
-        `${skew.toFixed(2)}deg`,
-      );
-      target *= 0.86;
-      frame = requestAnimationFrame(render);
-    };
-
-    const onScroll = () => {
-      const delta = window.scrollY - previous;
-      previous = window.scrollY;
-      document.documentElement.dataset.scrollDirection =
-        delta >= 0 ? "down" : "up";
-      target = Math.max(-1.1, Math.min(1.1, delta * -0.03));
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    frame = requestAnimationFrame(render);
-
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(frame);
-    };
-  }, []);
+@font-face {
+  font-family: MonaVar;
+  src: url("${asset("fonts/mona-sans-latin-wdth-normal.woff2")}")
+    format("woff2-variations");
+  font-weight: 200 900;
+  font-stretch: 75% 125%;
+  font-display: swap;
+}
+.pf .vp-mona {
+  font-family: MonaVar, MonaSemi, "Arial Narrow", Arial, sans-serif;
+  font-stretch: 87.5%;
 }
 
-function TypingText({
-  children,
-  texts,
-  speed = 82,
-  delay = 0,
-  className = "",
-  style,
-}) {
-  const labels = texts || [String(children)];
-  const [index, setIndex] = useState(0);
-  const [count, setCount] = useState(0);
-  const [deleting, setDeleting] = useState(false);
-  const current = labels[index % labels.length];
+.pf {
+  --orange: #ff630f;
+  --muted: #949494;
+  --muted3: #b8b8b8;
+  --d: MonaSemi, "Arial Narrow", Arial, sans-serif;
+  --u: "PP Neue Montreal", Arial, sans-serif;
+  --b: Mona, Arial, sans-serif;
+  background: #000;
+  color: #fff;
+  font-family: var(--b);
+  line-height: 1.35;
+  overflow-x: hidden;
+}
+.pf * {
+  box-sizing: border-box;
+}
+.pf a {
+  color: inherit;
+  text-decoration: none;
+}
+.pf button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.pf ::selection {
+  background: var(--orange);
+  color: #000;
+}
+.pf :focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 6px;
+}
+.pf .u {
+  font: 400 12px/1.2 var(--u);
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+}
+.pf .muted {
+  color: var(--muted);
+}
+.pf .or {
+  color: var(--orange);
+}
+.pf .pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  padding: 16px 20px;
+  border-radius: 999px;
+  background: #fff;
+  color: #000;
+  font: 400 18px/1 var(--u);
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease,
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pf .pill:hover,
+.pf .pill:focus-visible {
+  background: var(--orange);
+  transform: scale(1.04);
+}
+.pf .pill:active {
+  transform: scale(0.98);
+}
+.skip {
+  position: fixed;
+  z-index: 1000;
+  top: 12px;
+  left: 12px;
+  transform: translateY(-160%);
+  padding: 11px 16px;
+  background: var(--orange);
+  color: #000;
+  border-radius: 999px;
+}
+.skip:focus {
+  transform: none;
+}
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
 
-  useEffect(() => {
-    const isComplete = count >= current.length;
-    const isEmpty = count === 0 && deleting;
-    const wait =
-      !deleting && isComplete
-        ? 1900
-        : isEmpty
-          ? 420
-          : deleting
-            ? Math.max(32, Math.round(speed * 0.52))
-            : speed;
-    const initialDelay = count === 0 && !deleting ? delay : 0;
+.pf .cert { min-height: 0; padding-bottom: 60px; }
+.pf .cert-stage { margin-top: 36px; height: clamp(480px, 48vw, 680px); }
+.pf .cert-bar {
+  display: flex; justify-content: space-between; align-items: center; gap: 20px;
+  margin-top: 8px; color: var(--muted); font: 400 14px var(--u);
+}
+@media (max-width: 700px) {
+  .pf .cert-stage { height: 530px; margin-top: 24px; }
+  .pf .cert-bar { flex-direction: column; align-items: flex-start; margin-top: 14px; }
+}
 
-    const timer = window.setTimeout(() => {
-      if (!deleting && isComplete) setDeleting(true);
-      else if (deleting && isEmpty) {
-        setDeleting(false);
-        setIndex((previous) => (previous + 1) % labels.length);
-      } else {
-        setCount((previous) =>
-          Math.max(0, previous + (deleting ? -1 : 1)),
-        );
-      }
-    }, initialDelay + wait);
-
-    return () => window.clearTimeout(timer);
-  }, [count, current, deleting, delay, labels.length, speed]);
-
-  return (
-    <span
-      className={className}
-      role="status"
-      aria-live="polite"
-      style={{ display: "inline-block", whiteSpace: "nowrap", ...style }}
-    >
-      {current.slice(0, count)}
-      <span className="typing-caret" aria-hidden="true" />
-    </span>
+/* hero */
+.hero {
+  position: relative;
+  isolation: isolate;
+  min-height: 900px;
+  height: min(1100px, 100svh);
+  overflow: hidden;
+  container-type: inline-size;
+}
+.hero-bg {
+  position: absolute;
+  inset: 0 -3% -4%;
+  transform-origin: 50% 0;
+  background: #080808 url(var(--img)) 50% 0 / cover no-repeat;
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: scale(var(--z, 1)) translateY(var(--py, 0%));
+}
+.hero-ov {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.5),
+    rgba(0, 0, 0, 0.08) 35%,
+    rgba(0, 0, 0, 0.18) 57%,
+    rgba(0, 0, 0, 0.55)
   );
 }
+.nav {
+  position: absolute;
+  z-index: 6;
+  top: max(28px, env(safe-area-inset-top, 0px));
+  left: 3%;
+  right: 3%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  animation: navIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes navIn {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+}
+.clock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: var(--u);
+  font-variant-numeric: tabular-nums;
+}
+.clock small {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.09em;
+}
+.clock span {
+  font-size: 16px;
+}
+.nav .pill {
+  justify-self: end;
+  margin-right: 140px;
+}
+.ident {
+  position: absolute;
+  z-index: 2;
+  top: 147px;
+  left: 3%;
+  right: 3%;
+  container-type: inline-size;
+}
+.ht {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 3%;
+  font: 500 clamp(38px, 13.5cqw, 205px)/0.727 var(--d);
+  letter-spacing: -0.06em;
+  white-space: nowrap;
+}
+.mono,
+.nm {
+  display: flex;
+  align-items: baseline;
+}
+.nm {
+  flex: 0 1 62%;
+  justify-content: flex-end;
+  padding-right: 28px;
+  font-weight: 250;
+  position: relative;
+}
+.nm .f {
+  font-weight: 500;
+}
+.nm sup {
+  position: absolute;
+  right: 0;
+  top: 0.05em;
+  font: 400 clamp(10px, 1.5cqw, 23px)/1 var(--u);
+  letter-spacing: 0;
+  opacity: 0;
+  animation: fi 0.5s 1.48s both;
+}
+.lt {
+  display: inline-block;
+  opacity: 0;
+  animation: lIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--dl);
+}
+@keyframes lIn {
+  0% {
+    opacity: 0;
+    transform: translateY(115%) rotate(3deg) scale(0.96);
+    filter: blur(32px);
+  }
+  65% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+@keyframes fi {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes fu {
+  from {
+    opacity: 0;
+    transform: translateY(56px);
+  }
+}
+.sub {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 35px;
+  font: 400 13px/1.2 var(--u);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  animation: fu 0.5s 1.18s both;
+}
+.arrow {
+  position: absolute;
+  left: 70%;
+  top: calc(100% + 0px);
+  margin-top: -8px;
+  width: 52px;
+  height: 52px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.32);
+  display: grid;
+  place-items: center;
+}
+.arrow svg {
+  width: 25px;
+  height: 25px;
+  animation: bn 1.9s cubic-bezier(0.45, 0, 0.3, 1) infinite;
+}
+.arrow:hover,
+.arrow:focus-visible {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: #000;
+}
+.arrow:hover svg {
+  animation-play-state: paused;
+}
+@keyframes bn {
+  0%,
+  70%,
+  100% {
+    transform: translateY(-3px);
+  }
+  35% {
+    transform: translateY(5px);
+  }
+}
+.notes {
+  position: absolute;
+  z-index: 2;
+  left: 3%;
+  bottom: 40px;
+  width: min(420px, 42vw);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font: 400 18px/1.13 var(--u);
+  animation: fu 0.5s 1.55s both;
+}
+.notes p {
+  margin: 0;
+}
+.notes p + p {
+  color: var(--muted);
+}
+.hx {
+  position: absolute;
+  z-index: 2;
+  right: 3%;
+  bottom: 34px;
+  animation: fu 0.5s 2.075s both;
+}
+.vl {
+  position: absolute;
+  z-index: 2;
+  right: 3%;
+  top: 52%;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font: 400 10px/1 var(--u);
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.68);
+}
+/* about */
+.about {
+  min-height: 900px;
+  padding: 40px 3% 70px;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid #333;
+  container-type: inline-size;
+}
+.eb {
+  font: 400 18px/1 var(--u);
+}
+.st {
+  margin: 65px 0 0;
+  max-width: 1440px;
+  font: 500 clamp(30px, 6.7cqw, 96px)/0.98 var(--d);
+  letter-spacing: -0.04em;
+}
+.st span {
+  display: block;
+  transition:
+    opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.js .st span {
+  opacity: 0;
+  transform: translateY(60%);
+}
+.js .rv.in .st span {
+  opacity: 1;
+  transform: none;
+}
+.st span:nth-child(2) {
+  transition-delay: 0.11s;
+}
+.st span:nth-child(3) {
+  transition-delay: 0.22s;
+}
+.st span:nth-child(4) {
+  transition-delay: 0.33s;
+}
+.meta {
+  margin-top: auto;
+  padding-top: 80px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8%;
+  font: 400 18px/1.25 var(--u);
+}
+.meta p {
+  margin: 0 0 18px;
+  max-width: 620px;
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.tag {
+  border: 1px solid #777;
+  border-radius: 99px;
+  padding: 10px 14px;
+  color: var(--muted3);
+  font-size: 14px;
+}
 
-/* ---------------------------------------------------------
-   GLSL Hills — animated noise-displaced terrain (Three.js)
---------------------------------------------------------- */
-function GLSLHills({ className, cameraZ = 125, planeSize = 200, speed = 0.5 }) {
-  const canvasRef = useRef(null);
-  const containerRef = useRef(null);
+.sh {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+}
 
+/* work */
+.work {
+  min-height: 760px;
+  padding: 40px 4% 86px;
+  background: linear-gradient(
+    180deg,
+    #000 0%,
+    #000 48%,
+    #ea4f16 78%,
+    #f6af60 100%
+  );
+}
+.grid {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 260px 40px;
+  gap: 16px;
+  align-items: center;
+}
+.th {
+  color: var(--muted);
+  font: 400 14px var(--u);
+  text-transform: uppercase;
+  padding: 18px 0 0;
+}
+.row {
+  width: 100%;
+  position: relative;
+  isolation: isolate;
+  min-height: 72px;
+  padding: 16px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.42);
+  text-align: left;
+  font-family: var(--u);
+  background: rgba(0, 0, 0, 0.73);
+  transition: color 0.25s;
+}
+.row::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: #fff;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.row:hover::before,
+.row:focus-visible::before {
+  transform: none;
+}
+.row:hover,
+.row:focus-visible {
+  color: #000;
+  z-index: 5;
+}
+.row:hover .d,
+.row:focus-visible .d {
+  color: #333;
+}
+.row .t {
+  font-size: 24px;
+  line-height: 1.05;
+}
+.row .d,
+.row .i {
+  font-size: 14px;
+}
+.row .d {
+  color: var(--muted3);
+}
+.row .a {
+  font-size: 25px;
+  transition: transform 0.3s;
+}
+.row:hover .a {
+  transform: translateX(5px);
+}
+.pv {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 50%;
+  height: 150px;
+  width: auto;
+  max-width: 280px;
+  object-fit: contain;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  transform: translate(-50%, -50%) scale(0.96);
+  filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.42s,
+    transform 0.42s,
+    filter 0.42s;
+}
+.row:hover .pv,
+.row:focus-visible .pv {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+  filter: none;
+}
+.wb {
+  padding-top: 85px;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  font: 400 18px var(--u);
+}
+
+/* services */
+.svc {
+  min-height: 680px;
+  padding: 60px 3% 50px;
+  container-type: inline-size;
+  border-top: 1px solid #333;
+}
+.sh2 {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+  font: 500 clamp(30px, 6.4cqw, 86px)/1 var(--d);
+  letter-spacing: -0.045em;
+}
+.sh2 h2 {
+  font: inherit;
+  margin: 0;
+}
+.sh2 h2 > span {
+  display: block;
+}
+.at-w {
+  display: inline-block;
+  white-space: nowrap;
+}
+.at-c {
+  display: inline-block;
+  transition:
+    opacity var(--atd, 0.6s) ease-out,
+    transform var(--atd, 0.6s) ease-out;
+}
+.js .at-c {
+  opacity: 0;
+  transform: translateY(var(--aty, 10px));
+}
+.js .at.in .at-c {
+  opacity: 1;
+  transform: none;
+}
+.sh2 .k {
+  font: 400 14px var(--u);
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-top: 11px;
+}
+/* skills section with Dither background */
+.svc-skills {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: #000000;
+}
+.skills-dither-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 1;
+}
+.svc-skills > *:not(.skills-dither-bg) {
+  position: relative;
+  z-index: 1;
+}
+
+/* skills section modern open design (no boxy cards) */
+.sk-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 48px;
+  margin-top: 56px;
+}
+.sk-col {
+  position: relative;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  padding-top: 28px;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.35s ease;
+}
+.sk-col:hover {
+  border-color: var(--orange);
+}
+.sk-col-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 22px;
+}
+.sk-num {
+  font: 400 13px var(--u);
+  color: var(--muted);
+  letter-spacing: 0.12em;
+}
+.sk-icon {
+  display: flex;
+  align-items: center;
+  color: var(--muted);
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+.sk-col:hover .sk-icon {
+  color: var(--orange);
+  transform: scale(1.15);
+}
+.sk-icon svg {
+  width: 22px;
+  height: 22px;
+}
+.sk-title {
+  margin: 0 0 16px;
+  font: 500 clamp(24px, 2.2cqw, 34px)/1.05 var(--d);
+  letter-spacing: -0.03em;
+}
+.sk-title span {
+  display: block;
+}
+.sk-title .or {
+  color: var(--orange);
+}
+.sk-desc {
+  font: 400 14px/1.65 var(--b);
+  color: var(--muted3);
+  margin: 0 0 28px;
+  min-height: 46px;
+}
+.sk-group {
+  margin-bottom: 24px;
+}
+.sk-label {
+  font: 400 11px var(--u);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.sk-tools-list {
+  font: 400 13.5px/1.7 var(--u);
+  color: #e2e2e2;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.sk-tool-item {
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.2s ease;
+}
+.sk-tool-item:hover {
+  color: var(--orange);
+}
+.sk-sep {
+  margin: 0 8px;
+  color: #555;
+  user-select: none;
+}
+
+/* Marquee track - pure white floating logos without cards */
+.marquee-wrap {
+  position: relative;
+  overflow: hidden;
+  margin-top: 68px;
+  padding: 26px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+.marquee-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: marqueeScroll 45s linear infinite;
+  will-change: transform;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+@keyframes marqueeScroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+.marquee-logo-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 34px;
+  color: #ffffff;
+  flex-shrink: 0;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.marquee-logo-item svg {
+  width: 32px;
+  height: 32px;
+  fill: #ffffff;
+  color: #ffffff;
+  transition: transform 0.25s ease;
+}
+.marquee-logo-item:hover {
+  opacity: 1;
+  transform: scale(1.22);
+}
+
+@media (max-width: 980px) {
+  .sk-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    margin-top: 42px;
+  }
+  .sk-desc {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .svc-skills {
+    padding: 48px 4% 36px;
+    min-height: auto;
+  }
+  .sk-grid {
+    gap: 26px;
+    margin-top: 32px;
+  }
+  .sk-col {
+    padding-top: 18px;
+  }
+  .sk-col-header {
+    margin-bottom: 14px;
+  }
+  .sk-title {
+    font-size: 26px;
+    margin-bottom: 12px;
+  }
+  .sk-desc {
+    font-size: 13.5px;
+    margin-bottom: 20px;
+    min-height: auto;
+  }
+  .sk-tools-list {
+    font-size: 12.5px;
+    line-height: 1.65;
+  }
+
+  .marquee-wrap {
+    margin-top: 40px;
+    padding: 16px 0;
+  }
+  .marquee-logo-item {
+    padding: 0 18px;
+  }
+  .marquee-logo-item svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+/* contact */
+.ct {
+  padding: 110px 3% 36px;
+  border-top: 1px solid #333;
+  container-type: inline-size;
+}
+.ct h2 {
+  margin: 42px 0 0;
+  font: 500 clamp(38px, 8.5cqw, 116px)/0.9 var(--d);
+  letter-spacing: -0.04em;
+}
+.ct h2 span {
+  display: block;
+}
+.cg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8%;
+  margin-top: 65px;
+}
+.cc {
+  max-width: 480px;
+  font: 400 20px/1.22 var(--u);
+}
+.cc p {
+  margin: 0;
+}
+.cc .s {
+  margin-top: 30px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.em {
+  text-decoration: underline;
+  text-decoration-color: var(--orange);
+  text-underline-offset: 5px;
+  font: 400 17px var(--u);
+}
+.so {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  margin-top: 24px;
+  font: 400 14px var(--u);
+}
+.so a {
+  color: var(--muted3);
+}
+.so a:hover {
+  color: var(--orange);
+}
+.ft2 {
+  margin-top: 100px;
+  padding-top: 15px;
+  border-top: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  font: 400 14px var(--u);
+}
+.ft2 .ds {
+  color: var(--muted);
+  margin-top: 16px;
+}
+/* dialog */
+.pf dialog {
+  border: 1px solid #444;
+  background: #101010;
+  color: #f2f0e9;
+  width: min(1040px, calc(100vw - 32px));
+  max-height: calc(100svh - 32px);
+  padding: 0;
+  overflow: hidden;
+  margin: auto;
+}
+.pf dialog[open] {
+  animation: dlgIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.pf dialog.closing {
+  animation: dlgOut 0.26s ease-in both;
+}
+/* the page behind the open project is dimmed and blurred */
+.pf dialog::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+.pf dialog[open]::backdrop {
+  animation: bdIn 0.45s ease both;
+}
+.pf dialog.closing::backdrop {
+  animation: bdOut 0.26s ease both;
+}
+.pf dialog[open] .cs > * {
+  animation: dlgItem 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.pf dialog[open] .cs > .ctb {
+  animation: none;
+}
+.pf dialog[open] .cs > :nth-child(2) {
+  animation-delay: 0.08s;
+}
+.pf dialog[open] .cs > :nth-child(3) {
+  animation-delay: 0.14s;
+}
+.pf dialog[open] .cs > :nth-child(4) {
+  animation-delay: 0.2s;
+}
+.pf dialog[open] .cs > :nth-child(5) {
+  animation-delay: 0.26s;
+}
+.pf dialog[open] .cs > :nth-child(6) {
+  animation-delay: 0.32s;
+}
+.pf dialog[open] .cs > :nth-child(n + 7) {
+  animation-delay: 0.38s;
+}
+@keyframes dlgIn {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.97);
+  }
+}
+@keyframes dlgOut {
+  to {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+}
+@keyframes dlgItem {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+}
+@keyframes bdIn {
+  from {
+    opacity: 0;
+    -webkit-backdrop-filter: blur(0);
+    backdrop-filter: blur(0);
+  }
+}
+@keyframes bdOut {
+  to {
+    opacity: 0;
+    -webkit-backdrop-filter: blur(0);
+    backdrop-filter: blur(0);
+  }
+}
+.cs {
+  max-height: calc(100svh - 32px);
+  overflow: auto;
+  padding: 0 28px 44px;
+}
+.ctb {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  background: rgba(16, 16, 16, 0.95);
+  border-bottom: 1px solid #333;
+  font: 400 12px var(--u);
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.cx {
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid #555 !important;
+  border-radius: 50%;
+  font-size: 22px;
+}
+.cx:hover {
+  background: var(--orange);
+  color: #000;
+  border-color: var(--orange) !important;
+}
+.cs h2 {
+  margin: 36px 0 12px;
+  font: 500 clamp(40px, 6vw, 82px)/0.88 var(--d);
+  letter-spacing: -0.05em;
+}
+.cs .sm {
+  max-width: 720px;
+  font: 400 20px/1.25 var(--u);
+}
+.cs .art {
+  margin: 36px auto;
+  max-width: 640px;
+}
+.cs .art img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid #333;
+}
+.cm {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid #444;
+  border-bottom: 1px solid #444;
+  margin: 26px 0 35px;
+}
+.cm div {
+  padding: 15px 16px;
+}
+.cm div:first-child {
+  padding-left: 0;
+  border-right: 1px solid #444;
+}
+.cm dt {
+  color: var(--muted);
+  font: 400 11px var(--u);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.cm dd {
+  margin: 5px 0 0;
+  font: 400 16px var(--u);
+}
+.cp {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 20px;
+  padding: 20px 0;
+  border-top: 1px solid #333;
+}
+.cp h3 {
+  margin: 0;
+  color: var(--orange);
+  font: 400 13px var(--u);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.cp p {
+  margin: 0;
+  color: var(--muted3);
+  font: 400 17px/1.35 var(--b);
+}
+@media (max-width: 1200px) {
+  .about {
+    min-height: 820px;
+  }
+
+
+
+
+
+}
+@media (max-width: 900px) {
+  .hero {
+    height: 100svh;
+    min-height: 760px;
+  }
+  .vl {
+    display: none;
+  }
+  .sub {
+    font-size: 11px;
+  }
+  .notes {
+    font-size: 16px;
+    width: 54vw;
+  }
+
+
+
+
+
+
+  .th {
+    display: none;
+  }
+  .grid {
+    grid-template-columns: 42px minmax(0, 1fr) 40px;
+  }
+  .row .d {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .row .a {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .pv {
+    display: none;
+  }
+  .sg {
+    grid-template-columns: 42px minmax(0, 1fr) 140px;
+  }
+  .sg .sc {
+    grid-column: 2;
+  }
+  .sg .tg {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+  .sh2 {
+    flex-direction: column;
+  }
+  .sh2 .k {
+    align-self: flex-end;
+  }
+}
+@media (max-width: 700px) {
+  .ht {
+    font-size: 15cqw;
+  }
+  .ident {
+    top: 150px;
+  }
+  .nm {
+    padding-right: 22px;
+  }
+  .sub {
+    margin-top: 24px;
+    font-size: 10px;
+    align-items: flex-start;
+  }
+  .about {
+    min-height: 0;
+  }
+  .st {
+    margin-top: 45px;
+    font-size: clamp(30px, 9cqw, 47px);
+  }
+  .meta {
+    margin-top: 55px;
+    padding-top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+  }
+  .tags {
+    justify-content: flex-start;
+  }
+
+  .work {
+    padding-inline: 3%;
+  }
+  .wb {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-top: 55px;
+  }
+  .sg {
+    grid-template-columns: 24px minmax(0, 1fr) 110px;
+  }
+  .sr2 .t {
+    font-size: 20px;
+  }
+  .sr2 .sc {
+    font-size: 14px;
+  }
+  .sp {
+    grid-column: 2/4;
+  }
+  .notes2 {
+    flex-direction: column;
+    gap: 9px;
+  }
+  .ct {
+    padding-top: 65px;
+  }
+  .ct h2 {
+    font-size: 11.4cqw;
+  }
+  .cg {
+    display: flex;
+    flex-direction: column;
+    gap: 34px;
+  }
+  .ft2 {
+    margin-top: 65px;
+    flex-direction: column;
+  }
+  .cs {
+    padding-inline: 18px;
+  }
+  .cm {
+    grid-template-columns: 1fr;
+  }
+  .cm div:first-child {
+    border-right: 0;
+  }
+  .cm div {
+    padding-left: 0 !important;
+  }
+  .cp {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+@media (max-width: 560px) {
+  .hero {
+    min-height: max(720px, 100svh);
+    height: auto;
+  }
+  .nav {
+    top: max(20px, env(safe-area-inset-top, 0px));
+  }
+  .clock small {
+    font-size: 10px;
+  }
+  .clock span {
+    font-size: 14px;
+  }
+  .nav .pill {
+    min-height: 44px;
+    padding: 14px 16px;
+    font-size: 16px;
+    margin-right: 118px;
+  }
+  .ident {
+    top: 145px;
+  }
+  .notes {
+    bottom: 105px;
+    width: 90%;
+    font-size: 16px;
+  }
+  .hx {
+    left: 3%;
+    right: auto;
+    bottom: 28px;
+  }
+  .arrow {
+    width: 46px;
+    height: 46px;
+  }
+  .grid {
+    grid-template-columns: 24px minmax(0, 1fr) 24px;
+    gap: 9px;
+  }
+  .row .t {
+    font-size: 20px;
+  }
+}
+.pf .cur {
+  position: fixed;
+  z-index: 50;
+  left: 0;
+  top: 0;
+  width: 20px;
+  height: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.pf .lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 50px;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.5);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.pf .lang button {
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font: 400 14px/1 var(--u);
+  letter-spacing: 0.04em;
+  color: #fff;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.pf .lang button:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+.pf .lang button.on {
+  background: #fff;
+  color: #000;
+}
+.pf .em {
+  overflow-wrap: anywhere;
+}
+.pf .so a {
+  display: inline-block;
+  padding: 10px 0;
+}
+.pf dialog {
+  overscroll-behavior: contain;
+}
+@media (max-width: 560px) {
+  .pf .nav .pill {
+    display: none;
+  }
+}
+/* smooth hover: a default for every link and button that has no transition of its own */
+:where(.pf) a,
+:where(.pf) button {
+  transition-property:
+    color, background-color, border-color, opacity, transform, box-shadow;
+  transition-duration: 0.35s;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+.pf .tag {
+  transition:
+    color 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.pf .tag:hover {
+  color: #fff;
+  border-color: var(--orange);
+  transform: translateY(-3px);
+}
+.pf .row .t {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pf .row:hover .t,
+.pf .row:focus-visible .t {
+  transform: translateX(12px);
+}
+.pf .row .d {
+  transition: color 0.35s ease;
+}
+.pf .sr2 {
+  transition: background-color 0.4s ease;
+}
+.pf .sr2:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+.pf .sr2 .t {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pf .sr2:hover .t {
+  transform: translateX(10px);
+}
+.pf .tg:hover,
+.pf .tg:focus-visible {
+  background: #ff8849;
+  transform: scale(1.06);
+}
+.pf .em {
+  transition:
+    text-underline-offset 0.35s ease,
+    color 0.35s ease;
+}
+.pf .em:hover {
+  text-underline-offset: 9px;
+  color: var(--orange);
+}
+.pf .so a {
+  transition:
+    color 0.3s ease,
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.pf .so a:hover {
+  transform: translateY(-2px);
+}
+.pf .ft2 a {
+  transition: color 0.3s ease;
+}
+.pf .ft2 a:hover {
+  color: var(--orange);
+}
+@media (prefers-reduced-motion: reduce) {
+  .pf * {
+    animation: none !important;
+    transition: none !important;
+  }
+  .lt,
+  .nm sup {
+    opacity: 1 !important;
+  }
+  .js .at-c {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .pf dialog::backdrop {
+    animation: none !important;
+  }
+
+}
+`;
+
+const VS = `
+attribute vec2 position;
+varying vec2 vUv;
+void main() {
+  vUv = position * .5 + .5;
+  gl_Position = vec4(position, 0., 1.);
+}`;
+const FS = (prec) => `precision ${prec} float;
+varying vec2 vUv;
+uniform sampler2D image;
+uniform vec2 resolution, imageSize, mouse, trail[9];
+uniform float strength, time;
+uniform vec2 focus;
+
+vec2 coverUv(vec2 uv) {
+  float rs = resolution.x / resolution.y;
+  float ims = imageSize.x / imageSize.y;
+  vec2 scale = rs < ims ? vec2(rs / ims, 1.) : vec2(1., ims / rs);
+  return uv * scale + (1. - scale) * vec2(focus.x, 1. - focus.y);
+}
+
+void main() {
+  vec2 uv = vUv;
+  vec2 aspect = vec2(resolution.x / resolution.y, 1.);
+  vec2 delta = (uv - mouse) * aspect;
+  float dist = length(delta);
+  float radius = .47;
+  float falloff = (1. - smoothstep(0., radius, dist)) * strength;
+  vec2 dir = delta / (dist + .0001);
+  vec2 tangent = vec2(-dir.y, dir.x);
+
+  float wave = sin(dist * 38. - time * 2.15) * falloff;
+  float secondary = sin(dist * 19. + time * .7) * falloff;
+  vec2 displacement = dir * (wave * .00525 + falloff * .004);
+  displacement += tangent * secondary * .001875;
+  vec2 sampleUv = coverUv(uv + displacement);
+
+  float aberration = falloff * .0016 + abs(wave) * .0012;
+  vec2 rgbShift = dir * aberration;
+  float r = texture2D(image, sampleUv + rgbShift).r;
+  float g = texture2D(image, sampleUv).g;
+  float b = texture2D(image, sampleUv - rgbShift).b;
+  vec3 color = vec3(r, g, b);
+
+  vec3 orange = vec3(1., .22, .025);
+  float glow = falloff * (.10 + .08 * (sin(dist * 28. - time * 1.5) * .5 + .5));
+  float trailGlow = 0.;
+  for (int i = 0; i < 9; i++) {
+    vec2 td = (uv - trail[i]) * aspect;
+    float tdist = length(td);
+    float age = 1. - float(i) / 9.;
+    float halo = exp(-tdist * tdist * 145.);
+    float core = exp(-tdist * tdist * 420.);
+    float shimmer = .82 + .18 * sin(time * 2. - float(i) * .72);
+    trailGlow += (halo * .48 + core * .28) * age * age * shimmer;
+  }
+  float headProtection = smoothstep(.035, .105, dist);
+  trailGlow = min(trailGlow, 1.35) * strength * headProtection;
+
+  vec3 trailOrange = vec3(1., .31, .045);
+  vec3 trailGold = vec3(1., .58, .20);
+  color += orange * glow;
+  color += trailOrange * trailGlow * .46;
+  color += trailGold * pow(trailGlow, 1.65) * .11;
+  gl_FragColor = vec4(color, 1.);
+}`;
+
+function HeroGL({ heroRef, src }) {
+  const cv = useRef(null);
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container) return;
+    const hero = heroRef.current,
+      canvas = cv.current;
+    if (!hero || !canvas) return;
+    if (
+      !matchMedia("(min-width:769px) and (pointer:fine)").matches ||
+      matchMedia("(prefers-reduced-motion:reduce)").matches
+    )
+      return;
+    const gl = canvas.getContext("webgl", { alpha: true, antialias: false });
+    if (!gl) return;
+    const hp = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
+    const sh = (t, c) => {
+      const o = gl.createShader(t);
+      gl.shaderSource(o, c);
+      gl.compileShader(o);
+      return gl.getShaderParameter(o, gl.COMPILE_STATUS) ? o : null;
+    };
+    const vs = sh(gl.VERTEX_SHADER, VS),
+      fs = sh(
+        gl.FRAGMENT_SHADER,
+        FS(hp && hp.precision > 0 ? "highp" : "mediump"),
+      );
+    if (!vs || !fs) return;
+    const prog = gl.createProgram();
+    gl.attachShader(prog, vs);
+    gl.attachShader(prog, fs);
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
+    gl.useProgram(prog);
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
+      gl.STATIC_DRAW,
+    );
+    const pl = gl.getAttribLocation(prog, "position");
+    gl.enableVertexAttribArray(pl);
+    gl.vertexAttribPointer(pl, 2, gl.FLOAT, false, 0, 0);
+    const U = (n) => gl.getUniformLocation(prog, n);
 
-    const effectivePlaneSize = window.innerWidth < 640 ? Math.round(planeSize * 0.6) : planeSize;
-
-    let frameId = 0;
-
-    class Plane {
-      constructor() {
-        this.uniforms = { time: { type: "f", value: 0 } };
-        this.mesh = this.createMesh();
-        this.time = speed;
-      }
-      createMesh() {
-        return new THREE.Mesh(
-          new THREE.PlaneGeometry(effectivePlaneSize, effectivePlaneSize, effectivePlaneSize, effectivePlaneSize),
-          new THREE.RawShaderMaterial({
-            uniforms: this.uniforms,
-            vertexShader: `
-              #define GLSLIFY 1
-              attribute vec3 position;
-              uniform mat4 projectionMatrix;
-              uniform mat4 modelViewMatrix;
-              uniform float time;
-              varying vec3 vPosition;
-
-              mat4 rotateMatrixX(float radian) {
-                return mat4(
-                  1.0, 0.0, 0.0, 0.0,
-                  0.0, cos(radian), -sin(radian), 0.0,
-                  0.0, sin(radian), cos(radian), 0.0,
-                  0.0, 0.0, 0.0, 1.0
-                );
-              }
-
-              vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-              vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-              vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
-              vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
-              vec3 fade(vec3 t) { return t*t*t*(t*(t*6.0-15.0)+10.0); }
-
-              float cnoise(vec3 P) {
-                vec3 Pi0 = floor(P);
-                vec3 Pi1 = Pi0 + vec3(1.0);
-                Pi0 = mod289(Pi0);
-                Pi1 = mod289(Pi1);
-                vec3 Pf0 = fract(P);
-                vec3 Pf1 = Pf0 - vec3(1.0);
-                vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);
-                vec4 iy = vec4(Pi0.yy, Pi1.yy);
-                vec4 iz0 = Pi0.zzzz;
-                vec4 iz1 = Pi1.zzzz;
-
-                vec4 ixy = permute(permute(ix) + iy);
-                vec4 ixy0 = permute(ixy + iz0);
-                vec4 ixy1 = permute(ixy + iz1);
-
-                vec4 gx0 = ixy0 * (1.0 / 7.0);
-                vec4 gy0 = fract(floor(gx0) * (1.0 / 7.0)) - 0.5;
-                gx0 = fract(gx0);
-                vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);
-                vec4 sz0 = step(gz0, vec4(0.0));
-                gx0 -= sz0 * (step(0.0, gx0) - 0.5);
-                gy0 -= sz0 * (step(0.0, gy0) - 0.5);
-
-                vec4 gx1 = ixy1 * (1.0 / 7.0);
-                vec4 gy1 = fract(floor(gx1) * (1.0 / 7.0)) - 0.5;
-                gx1 = fract(gx1);
-                vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);
-                vec4 sz1 = step(gz1, vec4(0.0));
-                gx1 -= sz1 * (step(0.0, gx1) - 0.5);
-                gy1 -= sz1 * (step(0.0, gy1) - 0.5);
-
-                vec3 g000 = vec3(gx0.x,gy0.x,gz0.x);
-                vec3 g100 = vec3(gx0.y,gy0.y,gz0.y);
-                vec3 g010 = vec3(gx0.z,gy0.z,gz0.z);
-                vec3 g110 = vec3(gx0.w,gy0.w,gz0.w);
-                vec3 g001 = vec3(gx1.x,gy1.x,gz1.x);
-                vec3 g101 = vec3(gx1.y,gy1.y,gz1.y);
-                vec3 g011 = vec3(gx1.z,gy1.z,gz1.z);
-                vec3 g111 = vec3(gx1.w,gy1.w,gz1.w);
-
-                vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));
-                g000 *= norm0.x;
-                g010 *= norm0.y;
-                g100 *= norm0.z;
-                g110 *= norm0.w;
-                vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));
-                g001 *= norm1.x;
-                g011 *= norm1.y;
-                g101 *= norm1.z;
-                g111 *= norm1.w;
-
-                float n000 = dot(g000, Pf0);
-                float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));
-                float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));
-                float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));
-                float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));
-                float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));
-                float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));
-                float n111 = dot(g111, Pf1);
-
-                vec3 fade_xyz = fade(Pf0);
-                vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
-                vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
-                float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);
-                return 2.2 * n_xyz;
-              }
-
-              void main(void) {
-                vec3 updatePosition = (rotateMatrixX(radians(90.0)) * vec4(position, 1.0)).xyz;
-                float sin1 = sin(radians(updatePosition.x / 128.0 * 90.0));
-                vec3 noisePosition = updatePosition + vec3(0.0, 0.0, time * -30.0);
-                float noise1 = cnoise(noisePosition * 0.08);
-                float noise2 = cnoise(noisePosition * 0.06);
-                float noise3 = cnoise(noisePosition * 0.4);
-                vec3 lastPosition = updatePosition + vec3(0.0,
-                  noise1 * sin1 * 8.0
-                  + noise2 * sin1 * 8.0
-                  + noise3 * (abs(sin1) * 2.0 + 0.5)
-                  + pow(sin1, 2.0) * 40.0, 0.0);
-
-                vPosition = lastPosition;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(lastPosition, 1.0);
-              }
-            `,
-            fragmentShader: `
-              precision highp float;
-              #define GLSLIFY 1
-              varying vec3 vPosition;
-
-              void main(void) {
-                float opacity = (128.0 - length(vPosition)) / 256.0 * 1.1;
-                vec3 color = vec3(0.74, 0.74, 0.76);
-                gl_FragColor = vec4(color, opacity);
-              }
-            `,
-            transparent: true,
-          })
-        );
-      }
-      render(time) {
-        this.uniforms.time.value += time * this.time;
-      }
-    }
-
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true });
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, 1, 1, 10000);
-    const clock = new THREE.Clock();
-    const plane = new Plane();
+    const tgt = { x: 0.5, y: 0.5 },
+      cur = { x: 0.5, y: 0.5 };
+    const trail = Array.from({ length: 9 }, () => ({ x: 0.5, y: 0.5 }));
+    let s = 0,
+      ts = 0,
+      raf = 0,
+      ready = false,
+      shown = false,
+      visible = true,
+      tex = null;
+    const t0 = performance.now();
 
     const resize = () => {
-      const w = container.clientWidth || 1;
-      const h = container.clientHeight || 1;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.setSize(w, h, false);
+      const d = Math.min(window.devicePixelRatio || 1, 2.25);
+      canvas.width = Math.max(1, Math.round(canvas.clientWidth * d));
+      canvas.height = Math.max(1, Math.round(canvas.clientHeight * d));
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.uniform2f(U("resolution"), canvas.width, canvas.height);
+      if (ready) draw();
+    };
+    const draw = () => {
+      gl.uniform2f(U("mouse"), cur.x, cur.y);
+      gl.uniform2fv(
+        U("trail"),
+        new Float32Array(trail.flatMap((p) => [p.x, p.y])),
+      );
+      gl.uniform1f(U("strength"), s);
+      gl.uniform1f(U("time"), (performance.now() - t0) / 1000);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      if (!shown) {
+        shown = true;
+        canvas.style.opacity = 1;
+      }
+    };
+    const frame = () => {
+      raf = 0;
+      cur.x += (tgt.x - cur.x) * 0.075;
+      cur.y += (tgt.y - cur.y) * 0.075;
+      s += (ts - s) * (ts ? 0.07 : 0.028);
+      if (s < 0.001 && !ts) s = 0;
+      trail.forEach((p, i) => {
+        const q = i ? trail[i - 1] : cur,
+          k = 0.19 - i * 0.009;
+        p.x += (q.x - p.x) * k;
+        p.y += (q.y - p.y) * k;
+      });
+      draw();
+      if (s > 0 || ts) raf = requestAnimationFrame(frame);
+    };
+    const kick = () => {
+      if (!raf && ready && visible && !document.hidden)
+        raf = requestAnimationFrame(frame);
     };
 
-    const renderLoop = () => {
-      plane.render(clock.getDelta());
-      renderer.render(scene, camera);
-      frameId = requestAnimationFrame(renderLoop);
+    const img = new Image();
+    img.onload = () => {
+      try {
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        tex = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.texImage2D(
+          gl.TEXTURE_2D,
+          0,
+          gl.RGBA,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          img,
+        );
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.uniform1i(U("image"), 0);
+        gl.uniform2f(U("imageSize"), img.naturalWidth, img.naturalHeight);
+        // same focal point as the CSS background-position (50% 0): top-aligned
+        gl.uniform2f(U("focus"), 0.5, 0.0);
+        ready = true;
+        resize();
+      } catch (e) {
+        /* keep CSS portrait */
+      }
     };
+    img.src = src;
 
-    renderer.setClearColor(0x000000, 0);
-    camera.position.set(0, 16, cameraZ);
-    camera.lookAt(new THREE.Vector3(0, 28, 0));
-    scene.add(plane.mesh);
-
-    const observer = new ResizeObserver(resize);
-    observer.observe(container);
-    resize();
-    renderLoop();
-
+    const move = (e) => {
+      const r = canvas.getBoundingClientRect();
+      tgt.x = (e.clientX - r.left) / r.width;
+      tgt.y = 1 - (e.clientY - r.top) / r.height;
+      ts = 1;
+      kick();
+    };
+    const leave = () => {
+      ts = 0;
+      kick();
+    };
+    const lost = (e) => {
+      e.preventDefault();
+      ready = false;
+      cancelAnimationFrame(raf);
+      canvas.style.opacity = 0;
+    };
+    const io = new IntersectionObserver(([en]) => {
+      visible = en.isIntersecting;
+      if (!visible) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      } else kick();
+    });
+    io.observe(hero);
+    hero.addEventListener("pointermove", move, { passive: true });
+    hero.addEventListener("pointerleave", leave);
+    canvas.addEventListener("webglcontextlost", lost);
+    window.addEventListener("resize", resize);
+    document.addEventListener("visibilitychange", kick);
     return () => {
-      cancelAnimationFrame(frameId);
-      observer.disconnect();
-      plane.mesh.geometry.dispose();
-      plane.mesh.material.dispose();
-      renderer.dispose();
+      cancelAnimationFrame(raf);
+      io.disconnect();
+      hero.removeEventListener("pointermove", move);
+      hero.removeEventListener("pointerleave", leave);
+      canvas.removeEventListener("webglcontextlost", lost);
+      window.removeEventListener("resize", resize);
+      document.removeEventListener("visibilitychange", kick);
+      if (tex) gl.deleteTexture(tex);
+      gl.deleteBuffer(buf);
+      gl.deleteProgram(prog);
     };
-  }, [cameraZ, planeSize, speed]);
-
+  }, [heroRef, src]);
   return (
-    <div ref={containerRef} className={className} style={{ position: "absolute", inset: 0 }}>
-      <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} />
-    </div>
-  );
-}
-
-/* ---------------------------------------------------------
-   Kinetic grid — warps toward the pointer, idle ambient sway
---------------------------------------------------------- */
-function KineticGrid() {
-  const wrapRef = useRef(null);
-  const canvasRef = useRef(null);
-
-  useEffect(() => {
-    const wrap = wrapRef.current;
-    const canvas = canvasRef.current;
-    if (!wrap || !canvas) return;
-    const ctx = canvas.getContext("2d");
-
-    let spacing = 56;
-    const influence = 190;
-    const strength = 30;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-
-    let width = 0;
-    let height = 0;
-    let cols = 0;
-    let rows = 0;
-    let points = [];
-    let rafId = 0;
-    let t = 0;
-
-    const pointer = { x: -9999, y: -9999, tx: -9999, ty: -9999 };
-
-    function buildGrid() {
-      width = wrap.clientWidth;
-      height = wrap.clientHeight;
-      spacing = width < 640 ? 72 : 56;
-      canvas.width = Math.max(1, Math.floor(width * dpr));
-      canvas.height = Math.max(1, Math.floor(height * dpr));
-      canvas.style.width = width + "px";
-      canvas.style.height = height + "px";
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      cols = Math.ceil(width / spacing) + 2;
-      rows = Math.ceil(height / spacing) + 2;
-      points = [];
-      for (let j = 0; j < rows; j++) {
-        const row = [];
-        for (let i = 0; i < cols; i++) {
-          row.push({ bx: i * spacing, by: j * spacing, x: i * spacing, y: j * spacing, warp: 0 });
-        }
-        points.push(row);
-      }
-    }
-
-    function onMove(e) {
-      const rect = wrap.getBoundingClientRect();
-      pointer.tx = e.clientX - rect.left;
-      pointer.ty = e.clientY - rect.top;
-    }
-    function onTouchMove(e) {
-      if (!e.touches || !e.touches.length) return;
-      const rect = wrap.getBoundingClientRect();
-      pointer.tx = e.touches[0].clientX - rect.left;
-      pointer.ty = e.touches[0].clientY - rect.top;
-    }
-    function onLeave() {
-      pointer.tx = -9999;
-      pointer.ty = -9999;
-    }
-
-    function draw() {
-      t += 0.006;
-      pointer.x += (pointer.tx - pointer.x) * 0.12;
-      pointer.y += (pointer.ty - pointer.y) * 0.12;
-
-      ctx.clearRect(0, 0, width, height);
-
-      for (let j = 0; j < rows; j++) {
-        for (let i = 0; i < cols; i++) {
-          const p = points[j][i];
-          const dx = p.bx - pointer.x;
-          const dy = p.by - pointer.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          let warp = 0;
-          if (dist < influence) {
-            warp = 1 - dist / influence;
-            warp = warp * warp;
-          }
-          const angle = Math.atan2(dy, dx);
-          const push = warp * strength;
-          const idleX = Math.sin(t + p.bx * 0.02 + p.by * 0.01) * 1.1;
-          const idleY = Math.cos(t + p.by * 0.02) * 1.1;
-          p.x = p.bx - Math.cos(angle) * push + idleX;
-          p.y = p.by - Math.sin(angle) * push + idleY;
-          p.warp = warp;
-        }
-      }
-
-      ctx.lineWidth = 1;
-      for (let j = 0; j < rows; j++) {
-        for (let i = 0; i < cols; i++) {
-          const p = points[j][i];
-          const warp = Math.max(p.warp, i < cols - 1 ? points[j][i + 1].warp : 0);
-          const lightness = 210 + Math.round(warp * 40);
-          const alpha = 0.09 + warp * 0.5;
-          ctx.strokeStyle = `rgba(${lightness},${lightness},${lightness + 2},${alpha})`;
-
-          if (i < cols - 1) {
-            const pr = points[j][i + 1];
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(pr.x, pr.y);
-            ctx.stroke();
-          }
-          if (j < rows - 1) {
-            const pd = points[j + 1][i];
-            const warpV = Math.max(p.warp, pd.warp);
-            const lightnessV = 210 + Math.round(warpV * 40);
-            const alphaV = 0.09 + warpV * 0.5;
-            ctx.strokeStyle = `rgba(${lightnessV},${lightnessV},${lightnessV + 2},${alphaV})`;
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(pd.x, pd.y);
-            ctx.stroke();
-          }
-        }
-      }
-
-      rafId = requestAnimationFrame(draw);
-    }
-
-    buildGrid();
-    draw();
-
-    wrap.style.pointerEvents = "none";
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("touchmove", onTouchMove, { passive: true });
-    window.addEventListener("touchend", onLeave);
-    document.addEventListener("mouseleave", onLeave);
-
-    const ro = new ResizeObserver(buildGrid);
-    ro.observe(wrap);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      ro.disconnect();
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("touchmove", onTouchMove);
-      window.removeEventListener("touchend", onLeave);
-      document.removeEventListener("mouseleave", onLeave);
-    };
-  }, []);
-
-  return (
-    <div
-      ref={wrapRef}
-      aria-hidden="true"
+    <canvas
+      ref={cv}
       style={{
         position: "absolute",
         inset: 0,
-        zIndex: 0,
-        overflow: "hidden",
+        width: "100%",
+        height: "100%",
+        opacity: 0,
+        transition: "opacity .45s",
         pointerEvents: "none",
-        maskImage: "radial-gradient(ellipse 80% 60% at 50% 40%, black 40%, transparent 100%)",
-        WebkitMaskImage: "radial-gradient(ellipse 80% 60% at 50% 40%, black 40%, transparent 100%)",
       }}
+    />
+  );
+}
+
+function Cursor() {
+  const dot = useRef(null);
+  useEffect(() => {
+    if (
+      !matchMedia("(pointer:fine)").matches ||
+      matchMedia("(prefers-reduced-motion:reduce)").matches
+    )
+      return;
+    let raf = 0,
+      pos = null;
+    const paint = () => {
+      raf = 0;
+      dot.current.style.transform = `translate3d(${pos.clientX}px,${pos.clientY}px,0) translate(-50%,-50%)`;
+      dot.current.style.opacity = 1;
+    };
+    const move = (e) => {
+      pos = e;
+      if (!raf) raf = requestAnimationFrame(paint);
+    };
+    const out = () => {
+      dot.current.style.opacity = 0;
+    };
+    window.addEventListener("pointermove", move, { passive: true });
+    document.addEventListener("mouseleave", out);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("pointermove", move);
+      document.removeEventListener("mouseleave", out);
+    };
+  }, []);
+  return <div ref={dot} className="cur" aria-hidden="true" />;
+}
+
+const Letters = ({ text, start, cls }) =>
+  text.split("").map((c, i) => (
+    <span
+      key={i}
+      className={`lt ${cls || ""}`}
+      style={{ "--dl": `${(start + i * 0.1).toFixed(2)}s` }}
     >
-      <canvas ref={canvasRef} style={{ position: "absolute", inset: 0 }} />
+      {c}
+    </span>
+  ));
+
+const useClock = () => {
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const tick = () => !document.hidden && setNow(new Date());
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+  const off = -now.getTimezoneOffset();
+  const s = off < 0 ? "-" : "+";
+  const a = Math.abs(off);
+  const p = (n) => String(n).padStart(2, "0");
+  return {
+    zone: `GMT${s}${p(Math.floor(a / 60))}:${p(a % 60)} // LOCAL`,
+    time: `${p(now.getHours())}:${p(now.getMinutes())}:${p(now.getSeconds())}`,
+  };
+};
+
+// Letter-by-letter heading: each letter rises 10px and fades in, 0.05s apart.
+// Same motion as the AnimatedText reference, without needing the motion package.
+function AnimatedText({
+  lines,
+  duration = 0.6,
+  stagger = 0.05,
+  initialY = 10,
+}) {
+  const ref = useRef(null);
+  const [shown, setShown] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setShown(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setShown(true);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.4 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  let n = 0;
+  return (
+    <h2
+      ref={ref}
+      className={`at${shown ? " in" : ""}`}
+      aria-label={lines.map((l) => l.text).join(" ")}
+      style={{ "--aty": `${initialY}px`, "--atd": `${duration}s` }}
+    >
+      {lines.map((line, li) => (
+        <span className={line.className} aria-hidden="true" key={li}>
+          {line.text.split(" ").map((word, wi) => (
+            <React.Fragment key={wi}>
+              <span className="at-w">
+                {word.split("").map((ch, ci) => (
+                  <span
+                    className="at-c"
+                    style={{
+                      transitionDelay: `${(n++ * stagger).toFixed(2)}s`,
+                    }}
+                    key={ci}
+                  >
+                    {ch}
+                  </span>
+                ))}
+              </span>{" "}
+            </React.Fragment>
+          ))}
+        </span>
+      ))}
+    </h2>
+  );
+}
+
+function LangSwitch({ lang, setLang, label }) {
+  return (
+    <div className="lang" role="group" aria-label={label}>
+      {["en", "id"].map((l) => (
+        <button
+          key={l}
+          type="button"
+          lang={l}
+          className={l === lang ? "on" : ""}
+          aria-pressed={l === lang}
+          onClick={() => setLang(l)}
+        >
+          {l.toUpperCase()}
+        </button>
+      ))}
     </div>
   );
 }
 
-/* ---------------------------------------------------------
-   Site nav
---------------------------------------------------------- */
-function SiteNav() {
-  const [scrolled, setScrolled] = useState(false);
-  const [open, setOpen] = useState(false);
+export default function App() {
+  const clock = useClock();
+  const heroRef = useRef(null);
+  const dlg = useRef(null);
+  const [proj, setProj] = useState(null);
+  const [heroKey, setHeroKey] = useState(0);
+  const [certIdx, setCertIdx] = useState(0);
+  const [certZoomed, setCertZoomed] = useState(false);
+  const [lang, setLang] = useState(() => {
+    try {
+      const saved = localStorage.getItem("lang");
+      if (saved === "en" || saved === "id") return saved;
+    } catch (e) {
+      /* storage unavailable */
+    }
+    return (navigator.language || "").toLowerCase().startsWith("id")
+      ? "id"
+      : "en";
+  });
+  const t = COPY[lang];
+  const fmtDate = (iso) =>
+  new Date(`${iso}T00:00:00`).toLocaleDateString(lang === "id" ? "id-ID" : "en-US", { month: "short", year: "numeric" });
+  const certItems = CERTS.map((c) => ({
+    src: asset(c.image),
+    alt: c.title,
+    title: c.title,
+    subtitle: `${c.issuer} · ${fmtDate(c.date)}`,
+  }));
+  const projects =
+    lang === "id"
+      ? PROJECTS.map((p, i) => ({ ...p, ...PROJECTS_ID[i] }))
+      : PROJECTS;
+  const services =
+    lang === "id"
+      ? SERVICES.map((s, i) => ({ ...s, ...SERVICES_ID[i] }))
+      : SERVICES;
+
+  const [openGroups, setOpenGroups] = useState({ web: true, data: false, uiux: false });
+  const toggleGroup = (id) => setOpenGroups((prev) => ({ ...prev, [id]: !prev[id] }));
+  const expandAllGroups = () => setOpenGroups({ web: true, data: true, uiux: true });
+  const collapseAllGroups = () => setOpenGroups({ web: false, data: false, uiux: false });
+  const allOpen = Object.values(openGroups).every(Boolean);
+
+  const projectGroups = [
+    {
+      id: "web",
+      title: t.projCategories?.web ?? "Web Development",
+      desc: t.projGroupDesc?.web,
+      items: projects
+        .map((p, i) => ({ ...p, originalIndex: i }))
+        .filter((p) => p.category === "web"),
+    },
+    {
+      id: "data",
+      title: t.projCategories?.data ?? "Data Analysis",
+      desc: t.projGroupDesc?.data,
+      items: projects
+        .map((p, i) => ({ ...p, originalIndex: i }))
+        .filter((p) => p.category === "data"),
+    },
+    {
+      id: "uiux",
+      title: t.projCategories?.uiux ?? "UI/UX Design",
+      desc: t.projGroupDesc?.uiux,
+      items: projects
+        .map((p, i) => ({ ...p, originalIndex: i }))
+        .filter((p) => p.category === "uiux"),
+    },
+  ];
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll);
+    document.documentElement.lang = lang;
+    try {
+      localStorage.setItem("lang", lang);
+    } catch (e) {
+      /* storage unavailable */
+    }
+  }, [lang]);
+
+  useEffect(() => {
+    document.documentElement.classList.add("js");
+  }, []);
+
+  // replay the title entrance when the hero returns after fully leaving the viewport
+  useEffect(() => {
+    const h = heroRef.current;
+    let out = false;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.intersectionRatio === 0) out = true;
+        else if (out && e.intersectionRatio >= 0.2) {
+          out = false;
+          setHeroKey((k) => k + 1);
+        }
+      },
+      { threshold: [0, 0.2] },
+    );
+    io.observe(h);
+    return () => io.disconnect();
+  }, []);
+
+  // reveal sections once
+  useEffect(() => {
+    const els = document.querySelectorAll(".rv");
+    const io = new IntersectionObserver(
+      (en) =>
+        en.forEach(
+          (e) =>
+            e.isIntersecting &&
+            (e.target.classList.add("in"), io.unobserve(e.target)),
+        ),
+      { threshold: 0.2 },
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
+  // hero scroll parallax
+  useEffect(() => {
+    const onScroll = () => {
+      const h = heroRef.current;
+      if (!h) return;
+      const r = h.getBoundingClientRect();
+      const p = Math.min(Math.max(-r.top / r.height, 0), 1);
+      h.style.setProperty("--py", `${p * -7}%`);
+      h.style.setProperty("--z", String(1 + p * 0.2));
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // case-study dialog
   useEffect(() => {
-    const onResize = () => {
-      if (window.innerWidth >= 640) setOpen(false);
-    };
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
+    const d = dlg.current;
+    if (!d) return;
+    if (proj !== null && !d.open) d.showModal();
+    if (proj === null && d.open) d.close();
+  }, [proj]);
 
-  const scrollToSection = (e, href) => {
+  const goto = (e, href) => {
     e.preventDefault();
-    const id = href.replace("#", "");
-    const el = document.getElementById(id);
-    if (el) {
-      const offset = 96;
-      const top = el.getBoundingClientRect().top + window.scrollY - offset;
-      window.scrollTo({ top, behavior: "smooth" });
-    } else if (id === "top") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-    setOpen(false);
+    const el = document.querySelector(href);
+    el?.scrollIntoView({
+      behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+    });
+    el?.focus?.({ preventScroll: true });
   };
 
-  const links = [
-    { href: "#about", label: "About" },
-    { href: "#projects", label: "Projects" },
-    { href: "#skills", label: "Skills" },
-    { href: "#contact", label: "Contact" },
-  ];
+  // fade the project detail out before actually closing it
+  const closeProj = () => {
+    const d = dlg.current;
+    if (
+      !d ||
+      !d.open ||
+      matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      setProj(null);
+      return;
+    }
+    if (d.classList.contains("closing")) return;
+    d.classList.add("closing");
+    window.setTimeout(() => {
+      d.classList.remove("closing");
+      setProj(null);
+    }, 260);
+  };
+
+  const P = proj !== null ? projects[proj] : null;
 
   return (
-    <header style={{ position: "fixed", insetInline: 0, top: 0, zIndex: 50, display: "flex", flexDirection: "column", alignItems: "center", padding: "16px 16px 0" }}>
-      <nav
-        style={{
-          display: "flex",
-          width: "100%",
-          maxWidth: 720,
-          alignItems: "center",
-          justifyContent: "space-between",
-          borderRadius: 999,
-          padding: "10px 20px",
-          transition: "all 0.3s ease",
-          border: scrolled || open ? "1px solid var(--border)" : "1px solid transparent",
-          background: scrolled || open ? "rgba(10,7,16,0.7)" : "transparent",
-          backdropFilter: scrolled || open ? "blur(20px)" : "none",
-        }}
-      >
-        <a href="#top" className="font-display" style={{ fontSize: 14, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--foreground)", textDecoration: "none" }}>
-          Ifadah<span style={{ color: "var(--primary)" }}>'s Portfolio</span></a>
-        <ul style={{ display: "flex", alignItems: "center", gap: 4, listStyle: "none", margin: 0, padding: 0 }} className="nav-links">
-          {links.map((link) => (
-            <li key={link.href}>
-              <a
-                href={link.href}
-                style={{ borderRadius: 999, padding: "6px 12px", fontSize: 14, color: "var(--muted-foreground)", textDecoration: "none", transition: "color 0.2s" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--foreground)")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--muted-foreground)")}
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-        <a
-          href="#contact"
-          className="nav-cta"
-          style={{
-            borderRadius: 999,
-            background: "var(--primary)",
-            padding: "6px 16px",
-            fontSize: 14,
-            fontWeight: 500,
-            color: "#111112",
-            textDecoration: "none",
-            transition: "opacity 0.2s",
-            whiteSpace: "nowrap",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
-          onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
-        >
-          Let's talk
-        </a>
-        <button
-          type="button"
-          aria-label={open ? "Close menu" : "Open menu"}
-          onClick={() => setOpen((v) => !v)}
-          className="nav-toggle"
-          style={{
-            display: "none",
-            width: 34,
-            height: 34,
-            alignItems: "center",
-            justifyContent: "center",
-            borderRadius: 999,
-            border: "1px solid var(--border)",
-            background: "transparent",
-            color: "var(--foreground)",
-            cursor: "pointer",
-            padding: 0,
-          }}
-        >
-          {open ? <X size={16} /> : <Menu size={16} />}
-        </button>
-      </nav>
-
-      {open && (
-        <div
-          className="nav-mobile-panel"
-          style={{
-            marginTop: 8,
-            width: "100%",
-            maxWidth: 720,
-            borderRadius: 20,
-            border: "1px solid var(--border)",
-            background: "rgba(10,7,16,0.92)",
-            backdropFilter: "blur(20px)",
-            padding: 12,
-            display: "flex",
-            flexDirection: "column",
-            gap: 4,
-          }}
-        >
-          {links.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={() => setOpen(false)}
-              style={{ padding: "12px 14px", borderRadius: 12, fontSize: 15, color: "var(--foreground)", textDecoration: "none" }}
-            >
-              {link.label}
-            </a>
-          ))}
-          <a
-            href="#contact"
-            onClick={() => setOpen(false)}
-            style={{
-              marginTop: 4,
-              textAlign: "center",
-              borderRadius: 999,
-              background: "var(--primary)",
-              padding: "10px 16px",
-              fontWeight: 500,
-              color: "#111112",
-              textDecoration: "none",
-            }}
-          >
-            Let's talk
-          </a>
-        </div>
-      )}
-
-      <style>{`
-        @media (max-width: 639px) {
-          .nav-links { display: none !important; }
-          .nav-cta { display: none !important; }
-          .nav-toggle { display: inline-flex !important; }
+    <div className="pf">
+      <style>{CSS}</style>
+      <Cursor />
+      <StaggeredMenu
+        isFixed
+        position="right"
+        colors={["#ff630f", "#e9e4d8"]}
+        accentColor="#ff630f"
+        items={LINKS.map(([key, link]) => ({
+          label: t.menu[key],
+          link,
+          ariaLabel: t.goTo(t.menu[key]),
+        }))}
+        socialItems={PERSON.socials.map(([label, link]) => ({ label, link }))}
+        showLogo={false}
+        changeMenuColorOnOpen={false}
+        displayItemNumbering={false}
+        menuButtonColor="#fff"
+        openMenuButtonColor="#fff"
+        menuLabel={t.menuLabel}
+        closeLabel={t.closeLabel}
+        openAriaLabel={t.openMenuAria}
+        closeAriaLabel={t.closeMenuAria}
+        socialsTitle={t.socialsTitle}
+        panelExtra={
+          <LangSwitch lang={lang} setLang={setLang} label={t.langLabel} />
         }
-      `}</style>
-    </header>
-  );
-}
-
-/* ---------------------------------------------------------
-   Hero
---------------------------------------------------------- */
-function HeroSection() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setMounted(true), 50);
-    return () => clearTimeout(t);
-  }, []);
-
-  const stage = (i) => ({
-    opacity: mounted ? 1 : 0,
-    transform: mounted ? "translateY(0)" : "translateY(24px)",
-    transition: `opacity 0.8s ease ${i * 0.15 + 0.1}s, transform 0.8s ease ${i * 0.15 + 0.1}s`,
-  });
-
-  return (
-    <section
-      id="top"
-      className="hero-full-height"
-      style={{
-        position: "relative",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        overflow: "hidden",
-        padding: "0 24px",
-        textAlign: "center",
-      }}
-    >
-      <GLSLHills className="hero-hills" />
-      <div
-        aria-hidden="true"
-        style={{
-          pointerEvents: "none",
-          position: "absolute",
-          inset: 0,
-          background: "linear-gradient(to bottom, rgba(10,7,16,0.2), transparent, var(--background))",
-        }}
+        onItemClick={(e, it) => goto(e, it.link)}
       />
-
-      <div
-        style={{
-          ...stage(0),
-          marginBottom: 24,
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 8,
-        }}
+      <a
+        className="skip"
+        href="#projects"
+        onClick={(e) => goto(e, "#projects")}
       >
-        <Sparkles size={16} color="var(--primary)" />
-        <span style={{ fontSize: 14, fontWeight: 500, color: "rgba(245,243,249,0.8)" }}>
-          Available for freelance & full-time
-        </span>
-      </div>
+        {t.skip}
+      </a>
 
-      <h1
-        className="font-display hero-title"
-        style={{
-          lineHeight: 1.05,
-          letterSpacing: "-0.03em",
-          position: "relative",
-          zIndex: 1,
-          margin: 0,
-          maxWidth: "100%",
-        }}
-      >
-        <span style={{ display: "block", fontWeight: 700 }}>
-          Designing experiences
-        </span>
-        <TypingText
-          className="grad-text"
-          style={{ display: "block", fontWeight: 700 }}
-          texts={["that feel alive", "that feel useful", "that feel human"]}
-          speed={82}
-          delay={0}
-        >
-          that feel alive
-        </TypingText>
-      </h1>
-
-      <p
-        style={{
-          ...stage(2),
-          margin: "24px auto 0",
-          maxWidth: 560,
-          fontSize: 18,
-          lineHeight: 1.7,
-          color: "var(--muted-foreground)",
-          position: "relative",
-          zIndex: 1,
-        }}
-      >
-        I'm Ifadah Aulia, passionate about web development, UI/UX, web design, and data processing.
-      </p>
-
-      <div
-        style={{
-          ...stage(3),
-          marginTop: 40,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 12,
-          position: "relative",
-          zIndex: 1,
-        }}
-        className="hero-cta-row"
-      >
-        <a
-
-        href={asset("images/CV-IFADAH.pdf")}
-        download="CV-Ifadah-Aulia.pdf"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            borderRadius: 999,
-            background: "var(--primary)",
-            padding: "14px 28px",
-            fontWeight: 500,
-            color: "#111112",
-            textDecoration: "none",
-            transition: "opacity 0.2s",
+      <main id="top">
+        {/* HERO */}
+        <section
+          className="hero"
+          ref={heroRef}
+          style={{ "--img": `url("${asset("images/profile.jpg")}")` }}
+          onMouseMove={(e) => {
+            if (
+              !matchMedia("(pointer:fine)").matches ||
+              e.target.closest("a,button")
+            )
+              return;
+            const r = e.currentTarget.getBoundingClientRect();
+            const x = (e.clientX - r.left) / r.width,
+              y = (e.clientY - r.top) / r.height;
+            const on = x > 0.3 && x < 0.8 && y < 0.65;
+            e.currentTarget
+              .querySelector(".hero-bg")
+              .style.setProperty("--z", on ? "1.035" : "1");
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
-          onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+          onMouseLeave={(e) =>
+            e.currentTarget
+              .querySelector(".hero-bg")
+              .style.setProperty("--z", "1")
+          }
         >
-          Download CV
-          <ArrowRight size={16} />
-        </a>
-        <a
-          href="#contact"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            borderRadius: 999,
-            border: "1px solid var(--border)",
-            padding: "14px 28px",
-            fontWeight: 500,
-            color: "var(--foreground)",
-            textDecoration: "none",
-            transition: "background 0.2s",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "var(--secondary)")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-        >
-          Get in touch
-        </a>
-      </div>
+          <div className="hero-bg" aria-hidden="true">
+            <HeroGL heroRef={heroRef} src={asset("images/profile.jpg")} />
+          </div>
+          <div className="hero-ov" aria-hidden="true" />
 
-      <style>{`
-        .hero-full-height { min-height: 100vh; }
-        @supports (height: 100dvh) {
-          .hero-full-height { min-height: 100dvh; }
-        }
-        /*
-          MOBILE FIX: font-size now scales continuously with the
-          viewport (clamp) instead of jumping straight to a fixed
-          44px. Combined with white-space: nowrap on ScrambleText,
-          "that feel alive" always fits on a single line on phones,
-          so the scramble animation no longer flickers between
-          1-line and 2-line layouts.
-        */
-        .hero-title { font-size: clamp(1.9rem, 9.5vw, 2.75rem); }
-        @media (min-width: 480px) { .hero-title { font-size: clamp(2.25rem, 8vw, 2.75rem); } }
-        @media (min-width: 768px) { .hero-title { font-size: 72px; } }
-        @media (min-width: 1024px) { .hero-title { font-size: 92px; } }
-        @media (min-width: 640px) { .hero-cta-row { flex-direction: row; } }
-      `}</style>
-    </section>
-  );
-}
+          <header className="nav">
+            <div className="clock" aria-label={t.clockLabel}>
+              <small>{clock.zone}</small>
+              <span>{clock.time}</span>
+            </div>
+          </header>
 
-/* ---------------------------------------------------------
-   About
---------------------------------------------------------- */
-function AboutSection() {
-  const [ref, inView] = useReveal();
-
-  return (
-    <section id="about" style={{ position: "relative", margin: "0 auto", maxWidth: 1000, padding: "112px 24px", scrollMarginTop: 96 }}>
-      <div ref={ref} className={`reveal ${inView ? "in-view" : ""}`}>
-        <div className="about-grid">
-          <div>
-            <span className="font-display" style={{ fontFamily: "monospace", fontSize: 14, textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--primary)" }}>
-              About
-            </span>
-            <h2 className="font-display" style={{ marginTop: 16, fontSize: 30, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.25 }}>
-              A fresh graduate who's always chasing the next thing to learn.
-            </h2>
-            <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 16, lineHeight: 1.7, color: "var(--muted-foreground)" }}>
-              <p style={{ margin: 0 }}>
-                I'm Ifadah Aulia, a fresh graduate from Brawijaya University (2023–2026). I don't have formal work experience yet, but I've spent that time building things on my own — from personal projects to this very portfolio.
-              </p>
-              <p style={{ margin: 0 }}>
-                My interests sit across web development, UI/UX, web design, and working with data — I enjoy understanding not just how something looks, but how it works underneath and what the data behind it is telling me.
-              </p>
-              <p style={{ margin: 0 }}>
-                What keeps me going is a genuine love for learning. Every project is a chance to pick up a new framework, sharpen my design instincts, or get better at handling data than I was before.
-              </p>
+          <div className="ident">
+            <h1 className="ht" key={heroKey}>
+              <span className="sr">Ifadah Aulia</span>
+              <span className="mono" aria-hidden="true">
+                <Letters text="IA" start={0.38} />
+              </span>
+              <span className="nm" aria-hidden="true">
+                <span className="f">
+                  <Letters text="Ifadah" start={0.58} />
+                </span>
+                <span>
+                  <Letters text="Aulia" start={1.08} />
+                </span>
+              </span>
+            </h1>
+            <div className="sub">
+              <span>{t.sub}</span>
+              <span>{t.subRight}</span>
             </div>
           </div>
-
-          <div className="about-photo-wrap">
-            <div
-              style={{
-                position: "relative",
-                width: "100%",
-                aspectRatio: "4 / 5",
-                borderRadius: 20,
-                overflow: "hidden",
-                border: "1px solid var(--border)",
-                background: "var(--secondary)",
-              }}
+          <a
+            className="arrow"
+            style={{ left: "70%", top: 330 }}
+            href="#about"
+            aria-label={t.scrollAria}
+            onClick={(e) => goto(e, "#about")}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              <img
-                src={asset("images/profile.jpg")}
-                alt="Ifadah Aulia"
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                }}
-              />
-            </div>
+              <path d="M12 4v15M5 12l7 7 7-7" />
+            </svg>
+          </a>
+          <div className="vl" aria-hidden="true">
+            {t.vl}
           </div>
-        </div>
-      </div>
-
-      <style>{`
-        .about-grid { display: grid; gap: 48px; }
-        @media (min-width: 768px) { .about-grid { grid-template-columns: 1.4fr 1fr; align-items: start; } }
-      `}</style>
-    </section>
-  );
-}
-
-/* ---------------------------------------------------------
-   Projects
---------------------------------------------------------- */
-
-const techLogos = {
-  React: "react",
-  TypeScript: "typescript",
-  JavaScript: "javascript",
-  HTML: "html5",
-  CSS: "css",
-  "Tailwind CSS": "tailwindcss",
-  Vite: "vite",
-  Laravel: "laravel",
-  PHP: "php",
-  Blade: "laravel",
-  MySQL: "mysql",
-  Figma: "figma",
-  "Chart.js": "chartdotjs",
-  "Node.js": "nodedotjs",
-};
-
-function ProjectCard({ project, i }) {
-  const [ref, inView] = useReveal(0.1);
-  const hasLink = Boolean(project.url);
-
-  return (
-    <article
-      ref={ref}
-      className={`reveal ${inView ? "in-view" : ""} project-card`}
-      style={{
-        transitionDelay: `${(i % 2) * 0.1}s`,
-        position: "relative",
-        overflow: "hidden",
-        borderRadius: 24,
-        border: "1px solid var(--border)",
-        background: "rgba(20,17,29,0.5)",
-        backdropFilter: "blur(4px)",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor =
-          "rgba(210,210,214,0.4)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = "var(--border)";
-      }}
-    >
-      {hasLink && (
-        <a
-          href={project.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={`Open ${project.title} in a new tab`}
-          style={{
-            position: "absolute",
-            inset: 0,
-            zIndex: 2,
-          }}
-        />
-      )}
-
-      {/* PROJECT IMAGE */}
-      <div
-        style={{
-          position: "relative",
-          aspectRatio: "16 / 11",
-          overflow: "hidden",
-          background: project.gradient,
-        }}
-      >
-        {project.image ? (
-          <img
-            src={project.image}
-            alt={`${project.title} preview`}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              display: "block",
-              transition: "transform 0.5s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "scale(1.05)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "scale(1)";
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <span
-              className="font-display"
-              style={{
-                fontSize: 22,
-                fontWeight: 700,
-                color: "rgba(255,255,255,0.9)",
-              }}
-            >
-              {project.title}
-            </span>
-          </div>
-        )}
-
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "linear-gradient(to top, var(--card), rgba(20,17,29,0.05), transparent)",
-            pointerEvents: "none",
-          }}
-        />
-
-        {hasLink && (
-          <div
-            style={{
-              position: "absolute",
-              right: 20,
-              top: 20,
-              zIndex: 1,
-              width: 40,
-              height: 40,
-              borderRadius: 999,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1px solid rgba(255,255,255,0.2)",
-              background: "rgba(0,0,0,0.35)",
-              backdropFilter: "blur(8px)",
-              color: "#fff",
-            }}
-          >
-            <ArrowUpRight size={17} />
-          </div>
-        )}
-      </div>
-
-      {/* PROJECT INFO */}
-      <div style={{ padding: 24 }}>
-        {/* CATEGORY */}
-        <p
-          style={{
-            margin: 0,
-            fontFamily: "monospace",
-            fontSize: 11,
-            textTransform: "uppercase",
-            letterSpacing: "0.1em",
-            color: "var(--primary)",
-          }}
-        >
-          {project.category}
-        </p>
-
-        {/* TITLE */}
-        <h3
-          className="font-display"
-          style={{
-            margin: "8px 0 0",
-            fontSize: 22,
-            fontWeight: 700,
-            letterSpacing: "-0.01em",
-          }}
-        >
-          {project.title}
-        </h3>
-
-        {/* DESCRIPTION */}
-        <p
-          style={{
-            marginTop: 12,
-            fontSize: 14,
-            lineHeight: 1.7,
-            color: "var(--muted-foreground)",
-          }}
-        >
-          {project.description}
-        </p>
-
-        {/* TECH STACK */}
-        <div style={{ marginTop: 20 }}>
-          <p
-            style={{
-              margin: "0 0 10px",
-              fontFamily: "monospace",
-              fontSize: 10,
-              textTransform: "uppercase",
-              letterSpacing: "0.12em",
-              color: "var(--muted-foreground)",
-            }}
-          >
-            Tech Stack
-          </p>
-
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 10,
-            }}
-          >
-            {project.tech?.map((tech) => (
-              <img
-                key={tech}
-                src={`https://cdn.simpleicons.org/${techLogos[tech]}/c9c9ce`}
-                alt={tech}
-                title={tech}
-                style={{
-                  width: 20,
-                  height: 20,
-                  objectFit: "contain",
-                  opacity: 0.8,
-                  cursor: "default",
-                  transition: "transform 0.2s ease, opacity 0.2s ease",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "scale(1.2)";
-                  e.currentTarget.style.opacity = "1";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "scale(1)";
-                  e.currentTarget.style.opacity = "0.8";
-                }}
-              />
+          <div className="notes">
+            {t.notes.map((n) => (
+              <p key={n}>{n}</p>
             ))}
           </div>
-        </div>
-
-        <div style={{ marginTop: 18 }}>
-          <p
-            style={{
-              margin: "0 0 8px",
-              fontFamily: "monospace",
-              fontSize: 10,
-              textTransform: "uppercase",
-              letterSpacing: "0.12em",
-              color: "var(--muted-foreground)",
-            }}
+          <a
+            className="pill hx"
+            href="#projects"
+            onClick={(e) => goto(e, "#projects")}
           >
-            Highlights
-          </p>
+            {t.explore}
+          </a>
+        </section>
 
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 8,
-            }}
-          >
-            {project.tags.map((tag) => (
-              <span
-                key={tag}
-                style={{
-                  color: "var(--foreground)",
-                  fontSize: 11,
-                }}
-              >
-                {tag}
+        {/* ABOUT */}
+        <section className="about rv" id="about" tabIndex={-1}>
+          <div className="eb">{t.aboutLabel}</div>
+
+          <p className="st">
+            {t.statement.map((line) => (
+              <span key={line}>
+                <VariableProximity
+                  className="vp-mona"
+                  label={line}
+                  fromFontVariationSettings="'wght' 500"
+                  toFontVariationSettings="'wght' 850"
+                  radius={170}
+                  falloff="gaussian"
+                  smoothing={0.25}
+                  idleWave
+                />
               </span>
             ))}
+          </p>
+
+          <div className="meta">
+            <div>
+              {t.about.map((para) => (
+                <p key={para}>{para}</p>
+              ))}
+            </div>
+
+            <div
+            className="ab-focus"
+            style={{ justifySelf: "end", display: "flex", justifyContent: "flex-end" }}
+            >
+              <CircularText
+                text={`${t.tags.join(" • ").toUpperCase()} • `}
+                size={220}
+                fontSize={20}
+                fontWeight={900}
+                fill={false}
+                letterSpacing={0.04}
+                spinDuration={22}
+                onHover="speedUp"
+                hoverTilt={8}
+                draggable
+                color="var(--orange)"
+              >
+                <span
+                  style={{
+                    fontSize: 11,
+                    letterSpacing: "0.18em",
+                    textTransform: "uppercase",
+                    textAlign: "center",
+                    color: "#fff",
+                    opacity: 0.7,
+                  }}
+                >
+                  {t.focusTitle}
+                </span>
+              </CircularText>
+            </div>
           </div>
-        </div>
-      </div>
-    </article>
-  );
-}
+        </section>
 
-function ProjectsSection() {
-  const projects = [
-    {
-      title: "HR-Insight",
-      category: "Web Application · HR Analytics & Information System",
-      description:
-        "A web-based HR analytics and information system designed to manage employee, department, and position data while providing workforce insights through interactive dashboards, data visualization, and reporting features.",
-      tech: ["Laravel", "PHP", "MySQL", "Chart.js", "Tailwind CSS"],
-      tags: [
-        "HR Analytics",
-        "Data Visualization",
-        "Database Management",
-        "Dashboard",
-      ],
-      image: asset("/images/hr-insight.png"),
-      gradient: "linear-gradient(135deg, #0d2941, #24578a)",
-      url: "https://hrinsight.infinityfree.io/",
-    },
+        {/* PROJECTS */}
+        <section className="work" id="projects" tabIndex={-1}>
+          <div className="wt">
+            <div className="sh2">
+              <AnimatedText
+                lines={[
+                  { text: t.projectsH1 ?? "FEATURED" },
+                  { text: t.projectsH2 ?? "PROJECTS.", className: "or" },
+                ]}
+              />
+            </div>
+          </div>
+          {/* Project Dropdown Accordions */}
+          <div className="pdrop-container">
+            <div className="pdrop-top-bar">
+              <span className="pdrop-summary">
+                {t.projSummary?.(projectGroups.length, projects.length)}
+              </span>
+              <button
+                type="button"
+                className="pdrop-expand-btn"
+                onClick={allOpen ? collapseAllGroups : expandAllGroups}
+                aria-label={allOpen ? t.collapseAll : t.expandAll}
+              >
+                <span>{allOpen ? t.collapseAll : t.expandAll}</span>
+                <span style={{ fontSize: 13, lineHeight: 1 }}>{allOpen ? "−" : "+"}</span>
+              </button>
+            </div>
 
-    {
-      title: "FinTrack",
-      category: "Web Application · Financial Tracking & Analytics",
-      description:
-        "A financial tracking web application designed to help users monitor income, expenses, and financial activity through organized transaction management, financial summaries, and interactive data visualization.",
-      tech: ["React", "JavaScript", "Vite", "Tailwind CSS"],
-      tags: [
-        "Financial Dashboard",
-        "Data Visualization",
-        "Transaction Management",
-        "Analytics",
-      ],
-      image: asset("/images/fintrack.png"),
-      gradient: "linear-gradient(135deg, #172c24, #3d6b58)",
-      url: "https://fintrack-9a93qt4f.manus.space/",
-    },
+            {projectGroups.map((group) => (
+              <ProjectDropdown
+                key={group.id}
+                group={group}
+                isOpen={Boolean(openGroups[group.id])}
+                onToggle={() => toggleGroup(group.id)}
+                onSelectProject={(originalIndex) => setProj(originalIndex)}
+                openLabel={t.openCategory ?? "View"}
+                closeLabel={t.closeCategory ?? "Close"}
+                countText={t.projCount(group.items.length)}
+                colProject={t.colProject}
+                colDiscipline={t.colDiscipline}
+                openAria={t.openAria}
+                asset={asset}
+              />
+            ))}
+          </div>
+          <div className="wb">
+            <span>{t.haveProject}</span>
+            <a
+              className="pill"
+              href="#contact"
+              onClick={(e) => goto(e, "#contact")}
+            >
+              {t.startConv}
+            </a>
+          </div>
+        </section>
 
-    {
-      title: "ProfitRiddle",
-      category: "Web Application · Business Analytics",
-      description:
-        "A business analytics web application for Indonesian small businesses to analyze costs, profit margins, break-even points, and sales targets through interactive pricing scenarios.",
-      tech: ["React", "TypeScript", "Vite", "Tailwind CSS", "Node.js"],
-      tags: [
-        "Business Analytics",
-        "Financial Analysis",
-        "Scenario Analysis",
-        "Data Visualization",
-        "AI Assistant",
-      ],
-      image: asset("/images/profit-riddle.png"),
-      gradient: "linear-gradient(135deg, #172c24, #3d6b58)",
-      url: "https://URL-PROFITRIDDLE-KAMU.vercel.app",
-    },
-
-    {
-      title: "Arus",
-      category: "Web Dashboard · Smart City & Traffic Monitoring",
-      description:
-        "A traffic monitoring platform designed to visualize and monitor traffic conditions in Medan, helping users understand road activity and congestion through an interactive dashboard interface.",
-      tech: ["React", "TypeScript", "Vite"],
-      tags: [
-        "Dashboard",
-        "Traffic Monitoring",
-        "Smart City",
-      ],
-      image: asset("/images/arus.png"),
-      gradient: "linear-gradient(135deg, #162020, #345050)",
-      url: "https://medan-traffi-akzztqby.manus.space/",
-    },
-
-    {
-      title: "Ogek Wali",
-      category: "Web Application · Public Service Information System",
-      description:
-        "A web-based public complaint system designed for Sibolga City, allowing citizens to submit and track reports while helping administrators manage complaints, follow-ups, and supporting information.",
-      tech: ["Laravel", "PHP", "MySQL"],
-      tags: [
-        "Information System",
-        "Public Service",
-        "Database Management",
-      ],
-      image: asset("/images/ogek-wali.png"),
-      gradient: "linear-gradient(135deg, #1c2635, #40516b)",
-      url: "https://webpengaduan.site.je/",
-    },
-
-    {
-      title: "Neon Eclipse",
-      category: "Landing Page · Event & Entertainment",
-      description:
-        "A single-page concert landing site for the fictional festival Neon Eclipse, featuring an artist lineup, interactive audio visualizer, event schedule, and ticket waitlist.",
-      tech: ["React", "TypeScript", "Vite"],
-      tags: [
-        "Interactive UI",
-        "Audio Visualizer",
-        "Design System",
-      ],
-      image: asset("/images/neon-eclipse.png"),
-      gradient: "linear-gradient(135deg, #1e1e20, #58585e)",
-      url: "https://neoneclipse.netlify.app/",
-    },
-
-    {
-      title: "Island Hopper",
-      category: "Web Platform · Travel & Tourism",
-      description:
-        "A travel platform designed to help users discover island destinations, explore itineraries, plan routes, and organize trips across Indonesia.",
-      tech: ["React", "TypeScript", "Vite"],
-      tags: [
-        "Travel Planning",
-        "Interactive UI",
-        "Responsive Design",
-      ],
-      image: asset("/images/island-hopper.png"),
-      gradient: "linear-gradient(135deg, #1a1f24, #4b6570)",
-      url: "https://island-hopper-zeta.vercel.app/",
-    },
-
-    {
-      title: "Topup.gg",
-      category: "Web Platform · Gaming & E-Commerce",
-      description:
-        "A modern game top-up website designed to provide a fast and convenient experience for purchasing diamonds, UC, and other in-game currencies.",
-      tech: ["React", "Vite", "Tailwind CSS"],
-      tags: [
-        "E-Commerce",
-        "Gaming",
-        "Responsive UI",
-      ],
-      image: asset("/images/topupgg.png"),
-      gradient: "linear-gradient(135deg, #242426, #656569)",
-      url: "https://topupgg-gamma.vercel.app/",
-    },
-
-    {
-      title: "Nusantara Catering",
-      category: "Business Website · Food & Catering",
-      description:
-        "A responsive catering website designed to showcase menus, services, and company information while helping users explore available catering options.",
-      tech: ["HTML", "CSS", "JavaScript"],
-      tags: [
-        "Business Website",
-        "Responsive Design",
-        "UI Development",
-      ],
-      image: asset("/images/nusantara-catering.png"),
-      gradient: "linear-gradient(135deg, #2a211d, #6b5648)",
-      url: "https://padskieee.github.io/NusantaraCatering/",
-    },
-
-    {
-      title: "Taskly",
-      category: "UI/UX Design · Productivity Platform",
-      description:
-        "A productivity and task management platform concept designed to help users organize tasks, manage daily activities, and improve productivity through a clean and intuitive interface.",
-      tech: ["Figma"],
-      tags: [
-        "UI/UX Design",
-        "Productivity",
-        "Task Management",
-      ],
-      image: asset("/images/taskly.jpg"),
-      gradient: "linear-gradient(135deg, #252530, #4b4b62)",
-      url: "https://www.figma.com/design/BkIki1rvK3D11NheGAZkVM/Taskly-Web?node-id=16-34&p=f&t=mPkHvKGzGTygFmwG-0",
-    },
-
-    {
-      title: "X-ERCISE",
-      category: "Mobile App Design · Fitness & Health",
-      description:
-        "A mobile fitness application concept designed to help users monitor workouts, track physical activities, and maintain a healthier lifestyle through an intuitive user experience.",
-      tech: ["Figma"],
-      tags: [
-        "Mobile App",
-        "Fitness",
-        "UI/UX Design",
-      ],
-      image: asset("/images/x-ercise.jpg"),
-      gradient: "linear-gradient(135deg, #1c2524, #42635e)",
-      url: "https://www.figma.com/design/NzftHeMZVSBzJPad4R4TBN/X-ERCISE?node-id=0-1&p=f&t=jMdzddwje35UrNbi-0",
-    },
-
-  ];
-
-  return (
-    <section
-      id="projects"
-      style={{
-        position: "relative",
-        margin: "0 auto",
-        maxWidth: 1152,
-        padding: "112px 24px",
-        scrollMarginTop: 96,
-      }}
-    >
-      <div
-        style={{
-          marginBottom: 56,
-          maxWidth: 560,
-        }}
-      >
-        <span
-          style={{
-            fontFamily: "monospace",
-            fontSize: 14,
-            textTransform: "uppercase",
-            letterSpacing: "0.15em",
-            color: "var(--primary)",
-          }}
-        >
-          Selected work
-        </span>
-
-        <h2
-          className="font-display"
-          style={{
-            marginTop: 16,
-            fontSize: 30,
-            fontWeight: 700,
-            letterSpacing: "-0.02em",
-          }}
-        >
-          Projects I'm proud of
-        </h2>
-
-        <p
-          style={{
-            marginTop: 16,
-            lineHeight: 1.7,
-            color: "var(--muted-foreground)",
-          }}
-        >
-          A collection of web projects exploring interactive
-          experiences, modern interfaces, and practical digital
-          solutions.
-        </p>
-      </div>
-
-      <div
-        style={{
-          display: "grid",
-          gap: 24,
-        }}
-        className="projects-grid"
-      >
-        {projects.map((project, i) => (
-          <ProjectCard
-            key={project.title}
-            project={project}
-            i={i}
-          />
-        ))}
-      </div>
-
-      <style>{`
-        @media (min-width: 768px) {
-          .projects-grid {
-            grid-template-columns: repeat(2, 1fr);
-          }
-        }
-      `}</style>
-    </section>
-  );
-}
-
-function SkillCard({ skill, i }) {
-  const [ref, inView] = useReveal(0.1);
-  const Icon = skill.icon;
-  return (
-    <div
-      ref={ref}
-      className={`reveal ${inView ? "in-view" : ""}`}
-      style={{ transitionDelay: `${(i % 3) * 0.08}s` }}
-    >
-      <Icon size={28} style={{ color: "var(--primary)" }} />
-      <h3 className="font-display" style={{ marginTop: 16, fontSize: 20, fontWeight: 600, letterSpacing: "-0.01em" }}>
-        {skill.title}
-      </h3>
-      <p style={{ marginTop: 8, fontSize: 15, lineHeight: 1.7, color: "var(--muted-foreground)" }}>
-        {skill.description}
-      </p>
-    </div>
-  );
-}
-
-function LogoMarquee() {
-  const tools = [
-    { slug: "github", alt: "GitHub" },
-    { slug: "react", alt: "React" },
-    { slug: "nextdotjs", alt: "Next.js" },
-    { slug: "nuxt", alt: "Nuxt.js" },
-    { slug: "vuedotjs", alt: "Vue.js" },
-    { slug: "typescript", alt: "TypeScript" },
-    { slug: "vite", alt: "Vite" },
-    { slug: "tailwindcss", alt: "Tailwind CSS" },
-    { slug: "laravel", alt: "Laravel" },
-    { slug: "html5", alt: "HTML5" },
-    { slug: "css", alt: "CSS3" },
-    { slug: "php", alt: "PHP" },
-    { slug: "figma", alt: "Figma" },
-    { slug: "mysql", alt: "MySQL" },
-    { slug: "javascript", alt: "JavaScript" },
-    { slug: "git", alt: "Git" },
-    { slug: "nodedotjs", alt: "Node.js" },
-  ];
-
-  const track = [...tools, ...tools];
-
-  return (
-    <div
-      className="logo-marquee-container"
-      style={{
-        position: "relative",
-        overflow: "hidden",
-        padding: "12px 0",
-        maskImage:
-          "linear-gradient(to right, transparent, black 15%, black 85%, transparent)",
-        WebkitMaskImage:
-          "linear-gradient(to right, transparent, black 15%, black 85%, transparent)",
-      }}
-    >
-      <div
-        className="logo-marquee-track"
-        style={{
-          display: "flex",
-          width: "max-content",
-          gap: 56,
-          alignItems: "center",
-        }}
-      >
-        {track.map((tool, i) => (
-          <div
-            key={`${tool.slug}-${i}`}
-            title={tool.alt}
-            style={{
-              width: 38,
-              height: 38,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            <img
-              src={`https://cdn.simpleicons.org/${tool.slug}/c9c9ce`}
-              alt={tool.alt}
-              loading="lazy"
-              style={{
-                width: 32,
-                height: 32,
-                objectFit: "contain",
-                opacity: 0.75,
-                transition:
-                  "opacity 0.2s ease, transform 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.opacity = "1";
-                e.currentTarget.style.transform = "scale(1.15)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.opacity = "0.75";
-                e.currentTarget.style.transform = "scale(1)";
-              }}
+        {/* SKILLS */}
+        <section className="svc svc-skills" id="skills" tabIndex={-1}>
+          <div className="skills-dither-bg" aria-hidden="true">
+            <Dither
+              waveSpeed={0.04}
+              waveFrequency={2.2}
+              waveAmplitude={0.32}
+              palette={[
+                "#000000",
+                "#0e0300",
+                "#1e0600",
+                "#3a0c00",
+                "#621600",
+                "#962600",
+                "#d14404",
+              ]}
+              pixelSize={3}
+              ditherMode="bayer"
+              scale={1.2}
+              contrast={1.06}
+              brightness={-0.10}
+              mouseEffect="reveal"
+              mouseRadius={0.65}
+              mouseStrength={0.42}
+              trail={0.35}
+              clickRipple={true}
+              intro={false}
             />
           </div>
-        ))}
-      </div>
+          <div className="sh2">
+            <AnimatedText
+              lines={[
+                { text: t.skillsH1 },
+                { text: t.skillsH2, className: "or" },
+              ]}
+            />
+          </div>
+          {(() => {
+            const skillCats = [
+              {
+                num: "01",
+                icon: (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="16 18 22 12 16 6" />
+                    <polyline points="8 6 2 12 8 18" />
+                  </svg>
+                ),
+                title: ["WEB", "DEVELOPMENT"],
+                orIdx: 0,
+                desc: t.skWebDesc,
+                tools: ["React", "TypeScript", "JavaScript", "Laravel", "PHP", "MySQL", "Tailwind CSS", "HTML & CSS", "Node.js", "Chart.js", "Vite"],
+              },
+              {
+                num: "02",
+                icon: (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10" />
+                    <line x1="12" y1="20" x2="12" y2="4" />
+                    <line x1="6" y1="20" x2="6" y2="14" />
+                    <line x1="2" y1="20" x2="22" y2="20" />
+                  </svg>
+                ),
+                title: ["DATA", "ANALYSIS"],
+                orIdx: 0,
+                desc: t.skDataDesc,
+                tools: ["Microsoft Excel", "Microsoft Word", "Microsoft PowerPoint", "Chart.js", "Data Visualization", "Dashboard Design", "SQL / Database", "Spreadsheet"],
+              },
+              {
+                num: "03",
+                icon: (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 19l7-7 3 3-7 7-3-3z" />
+                    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+                    <path d="M2 2l7.586 7.586" />
+                    <circle cx="11" cy="11" r="2" />
+                  </svg>
+                ),
+                title: ["UI/UX", "DESIGN"],
+                orIdx: 1,
+                desc: t.skUiDesc,
+                tools: ["Figma", "UI/UX Design", "Wireframing", "Prototyping", "User Research", "Design System", "Responsive Design"],
+              },
+            ];
+            const singleSet = [...TECH_LOGOS, ...TECH_LOGOS];
+            const marqueeLogos = [...singleSet, ...singleSet];
+            return (
+              <>
+                <div className="sk-grid">
+                  {skillCats.map((cat, i) => (
+                    <div className="sk-col" key={i}>
+                      <div className="sk-col-header">
+                        <span className="sk-icon" aria-hidden="true">{cat.icon}</span>
+                      </div>
+                      <h3 className="sk-title">
+                        {cat.title.map((line, li) => (
+                          <span key={li} className={li === cat.orIdx ? "or" : ""}>{line}</span>
+                        ))}
+                      </h3>
+                      <p className="sk-desc">{cat.desc}</p>
+                      <div className="sk-group">
+                        <div className="sk-label">{t.skTools}</div>
+                        <div className="sk-tools-list">
+                          {cat.tools.map((tool, ti) => (
+                            <span key={ti} className="sk-tool-item">
+                              {tool}
+                              {ti < cat.tools.length - 1 && <span className="sk-sep">/</span>}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="marquee-wrap" aria-hidden="true">
+                  <div className="marquee-track">
+                    {marqueeLogos.map((item, i) => (
+                      <div
+                        className="marquee-logo-item"
+                        key={i}
+                        title={item.name}
+                        aria-label={item.name}
+                      >
+                        <TechLogo name={item.name} path={item.path} size={32} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            );
+          })()}
+        </section>
 
-      <style>{`
-        @keyframes logoMarqueeScroll {
-          from {
-            transform: translateX(0);
-          }
+        {/* CERTIFICATES */}
+        <section className="svc cert" id="certificates" tabIndex={-1}>
+          <div className="sh2">
+            <AnimatedText lines={[{ text: t.certH1 }, { text: t.certH2, className: "or" }]} />
+          </div>
+          <div className="cert-stage">
+            <FlexCarousel
+              items={certItems}
+              preset="liquid"
+              intro="rise"
+              cardHeight={0.5}
+              gap={16}
+              radius={6}
+              fit="natural"
+              captureWheel={false}
+              cruise={32}
+              onChange={setCertIdx}
+              onFocusChange={setCertZoomed}
+            />
+          </div>
+          <div className="cert-bar">
+            <span className="cert-hint">{t.certHint}</span>
+            <a
+              className="pill"
+              href={asset(CERTS[certIdx].pdf)}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                opacity: certZoomed ? 1 : 0,
+                pointerEvents: certZoomed ? "auto" : "none",
+                transform: certZoomed ? "translateY(0)" : "translateY(8px)",
+                transition: "opacity 0.3s ease, transform 0.3s ease",
+              }}
+            >
+              {t.certOpen}
+            </a>
+          </div>
+          <ul className="sr">
+            {CERTS.map((c) => (
+              <li key={c.pdf}><a href={asset(c.pdf)}>{c.title}</a></li>
+            ))}
+          </ul>
+        </section>
 
-          to {
-            transform: translateX(-50%);
-          }
-        }
+        {/* CONTACT */}
+        <section className="ct" id="contact" tabIndex={-1}>
+          <div className="eb">{t.contactLabel}</div>
+          <h2 className="ct-title">
+            <TechText
+              lines={[
+                { text: t.ctH1, color: "currentColor", boxColor: "#ff7a30" },
+                { text: t.ctH2, color: "#ff7a30", boxColor: "currentColor" },
+              ]}
+              inset={0}
+              style={{ marginTop: "-70px" }}
+              fontSize={120}
+              fontWeight={700}
+              align="left"
+              lineHeight={0.95}
+              intro="assemble"
+              introDuration={1.8}
+              reach={140}
+              softness={0.7}
+              sweep={true}
+              speed={0.8}
+              selection={true}
+              labels={false}
+              draggable={true}
+            />
+          </h2>
+          <div className="cg">
+            {/* Left column: cat, description, CV */}
+            <div className="contact-intro">
+              <AnimatedCat />
 
-        .logo-marquee-track {
-          animation: logoMarqueeScroll 30s linear infinite;
-        }
+              <div className="cc">
+                <p>{t.ctText}</p>
+                <p className="s">{t.ctServices}</p>
 
-        .logo-marquee-container:hover .logo-marquee-track {
-          animation-duration: 10s;
-        }
-      `}</style>
-    </div>
-  );
-}
+                <p style={{ marginTop: 30 }}>
+                  <a
+                    className="pill"
+                    href={asset("images/CV-IFADAH.pdf")}
+                    download="CV-Ifadah-Aulia.pdf"
+                  >
+                    {t.downloadCV}
+                  </a>
+                </p>
+              </div>
+            </div>
 
-function SkillsSection() {
-  const skills = [
-    { icon: Compass, title: "UX Research", description: "Interviews, usability testing, and synthesis that ground decisions in real needs." },
-    { icon: Waypoints, title: "Interaction Design", description: "Flows, states, and micro-interactions that make products feel responsive." },
-    { icon: PenTool, title: "Visual Design", description: "Type, color, and layout systems with a strong eye for hierarchy and detail." },
-    { icon: Layers, title: "Design Systems", description: "Scalable component libraries and tokens that keep teams consistent." },
-    { icon: Gauge, title: "Prototyping", description: "High-fidelity, motion-rich prototypes in Figma, Framer, and code." },
-    { icon: Users, title: "Collaboration", description: "Close partnership with engineering and product from kickoff to ship." },
-  ];
-
-  return (
-    <section id="skills" style={{ position: "relative", margin: "0 auto", maxWidth: 1152, padding: "112px 24px", scrollMarginTop: 96 }}>
-      <div style={{ marginBottom: 56, maxWidth: 560 }}>
-        <span style={{ fontFamily: "monospace", fontSize: 14, textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--primary)" }}>
-          Capabilities
-        </span>
-        <h2 className="font-display" style={{ marginTop: 16, fontSize: 30, fontWeight: 700, letterSpacing: "-0.02em" }}>
-          What I bring to a team
-        </h2>
-      </div>
-
-      <div style={{ display: "grid", gap: 16 }} className="skills-grid">
-        {skills.map((skill, i) => (
-          <SkillCard key={skill.title} skill={skill} i={i} />
-        ))}
-      </div>
-
-      <div style={{ marginTop: 48 }}>
-        <p style={{ marginBottom: 20, fontSize: 14, color: "var(--muted-foreground)" }}>Toolbox</p>
-        <LogoMarquee />
-      </div>
-
-      <style>{`
-        @media (min-width: 640px) { .skills-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (min-width: 1024px) { .skills-grid { grid-template-columns: repeat(3, 1fr); } }
-      `}</style>
-    </section>
-  );
-}
-
-function ContactSection() {
-  const [ref, inView] = useReveal();
-
-  const socials = [
-    {
-      name: "LinkedIn",
-      url: "https://www.linkedin.com/in/ifadah-aulia-muhti-sinaga-15a366289/",
-    },
-    {
-      name: "GitHub",
-      url: "https://github.com/Padskieee",
-    },
-    {
-      name: "Instagram",
-      url: "https://www.instagram.com/ifadahaulia_/",
-    },
-  ];
-
-  return (
-    <section
-      id="contact"
-      style={{
-        position: "relative",
-        margin: "0 auto",
-        maxWidth: 860,
-        padding: "112px 24px",
-        scrollMarginTop: 96,
-      }}
-    >
-      <div
-        ref={ref}
-        className={`reveal ${inView ? "in-view" : ""}`}
-        style={{
-          position: "relative",
-          padding: "48px 24px",
-          textAlign: "center",
-        }}
-      >
-        <div
-          aria-hidden="true"
-          style={{
-            pointerEvents: "none",
-            position: "absolute",
-            insetInline: 0,
-            top: -96,
-            margin: "0 auto",
-            height: 192,
-            width: 192,
-            borderRadius: "50%",
-            background: "rgba(210,210,214,0.15)",
-            filter: "blur(64px)",
-          }}
-        />
-
-        <span
-          style={{
-            fontFamily: "monospace",
-            fontSize: 14,
-            textTransform: "uppercase",
-            letterSpacing: "0.15em",
-            color: "var(--primary)",
-          }}
-        >
-          Contact
-        </span>
-
-        <h2
-          className="font-display contact-heading"
-          style={{
-            marginTop: 16,
-            fontWeight: 700,
-            letterSpacing: "-0.02em",
-          }}
-        >
-          Have a project in mind?
-        </h2>
-
-        <p
-          style={{
-            margin: "16px auto 0",
-            maxWidth: 400,
-            lineHeight: 1.7,
-            color: "var(--muted-foreground)",
-          }}
-        >
-          I'm currently open to new opportunities and collaborations.
-          Let's create something people love to use.
-        </p>
-
-        <a
-          href="https://mail.google.com/mail/?view=cm&fs=1&to=ifadahauliasinaga@gmail.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            marginTop: 32,
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            borderRadius: 999,
-            background: "var(--primary)",
-            padding: "14px 28px",
-            fontWeight: 500,
-            color: "#111112",
-            textDecoration: "none",
-            transition: "opacity 0.2s",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
-          onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
-        >
-          <Mail size={16} />
-          ifadahauliasinaga@gmail.com
-        </a>
-
-        <ul
-          style={{
-            marginTop: 40,
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "8px 24px",
-            listStyle: "none",
-            padding: 0,
-          }}
-        >
-          {socials.map((social) => (
-            <li key={social.name}>
-              <a
-                href={social.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 4,
-                  fontSize: 14,
-                  color: "var(--muted-foreground)",
-                  textDecoration: "none",
-                  transition: "color 0.2s",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.color = "var(--primary)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.color =
-                    "var(--muted-foreground)")
-                }
-              >
-                {social.name}
-                <ArrowUpRight size={14} />
+            {/* Right column: email and social links */}
+            <div className="contact-links">
+              <a className="em" href={`mailto:${PERSON.email}`}>
+                {PERSON.email} ↗
               </a>
-            </li>
-          ))}
-        </ul>
-      </div>
 
-      <footer
-        style={{
-          marginTop: 64,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 8,
-          borderTop: "1px solid var(--border)",
-          paddingTop: 32,
-          fontSize: 14,
-          color: "var(--muted-foreground)",
-        }}
-        className="footer-row"
-      >
-        <span>© {new Date().getFullYear()} Ifadah Aulia</span>
+              <div className="so">
+                {PERSON.socials.map(([n, u]) => (
+                  <a key={n} href={u} target="_blank" rel="noopener noreferrer">
+                    {n} ↗
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
 
-        <span>Designed & built with care</span>
-      </footer>
-
-      <style>{`
-        .contact-heading {
-          font-size: 30px;
-        }
-
-        @media (min-width: 768px) {
-          .contact-heading {
-            font-size: 46px;
-          }
-
-          .footer-row {
-            flex-direction: row;
-          }
-        }
-      `}</style>
-    </section>
-  );
-}
-
-export default function Portfolio() {
-  useOriginalScrollMotion();
-
-  return (
-    <div className="portfolio-root">
-      <GlobalStyles />
-      <main style={{ position: "relative", minHeight: "100vh" }}>
-        <SiteNav />
-        <HeroSection />
-        <div style={{ position: "relative" }}>
-          <KineticGrid />
-          <AboutSection />
-          <ProjectsSection />
-          <SkillsSection />
-          <ContactSection />
-        </div>
+          <footer className="ft2">
+            <div>
+              <div>© Ifadah Aulia {new Date().getFullYear()}</div>
+              <div className="ds">{t.footer}</div>
+            </div>
+            <a href="#top" onClick={(e) => goto(e, "#top")}>
+              {t.backTop}
+            </a>
+          </footer>
+        </section>
       </main>
+
+      <dialog
+        ref={dlg}
+        aria-labelledby="cs-title"
+        onClose={() => setProj(null)}
+        onCancel={(e) => {
+          e.preventDefault();
+          closeProj();
+        }}
+        onClick={(e) => {
+          const r = e.currentTarget.getBoundingClientRect();
+          if (
+            e.clientX < r.left ||
+            e.clientX > r.right ||
+            e.clientY < r.top ||
+            e.clientY > r.bottom
+          )
+            closeProj();
+        }}
+      >
+        {P && (
+          <div className="cs">
+            <div className="ctb">
+              <span>
+                {t.caseStudy} / {String(proj + 1).padStart(2, "0")}
+              </span>
+              <button
+                className="cx"
+                onClick={closeProj}
+                aria-label={t.closeCase}
+              >
+                ×
+              </button>
+            </div>
+            <h2 id="cs-title">{P.title}</h2>
+            <p className="sm">{P.text}</p>
+            <div className="art">
+              <img src={asset(P.image)} alt={`${P.title} preview`} />
+            </div>
+            <dl className="cm">
+              <div>
+                <dt>{t.type}</dt>
+                <dd>{P.kind}</dd>
+              </div>
+              <div>
+                <dt>{t.focus}</dt>
+                <dd>{P.cat}</dd>
+              </div>
+            </dl>
+            <div className="cp">
+              <h3>{t.techStack}</h3>
+              <p>{P.tech.join(" / ")}</p>
+            </div>
+            <div className="cp">
+              <h3>{t.highlights}</h3>
+              <p>{P.tags.join(" / ")}</p>
+            </div>
+            {P.url && (
+              <p style={{ marginTop: 22 }}>
+                <a
+                  className="pill"
+                  href={P.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t.openProject}
+                </a>
+              </p>
+            )}
+          </div>
+        )}
+      </dialog>
     </div>
   );
 }

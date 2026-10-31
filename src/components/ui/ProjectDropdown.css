@@ -1,0 +1,292 @@
+/* Project Dropdown / Accordion — styled like StaggeredMenu */
+
+.pdrop-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 36px;
+}
+
+/* Quick actions bar at the top of dropdowns */
+.pdrop-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 4px;
+  padding: 0 4px;
+}
+
+.pdrop-summary {
+  font: 400 13.5px var(--u);
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+.pdrop-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--muted3);
+  font: 400 12.5px var(--u);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.pdrop-expand-btn:hover {
+  border-color: var(--orange, #ff630f);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Main card */
+.pdrop-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+  overflow: hidden;
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  transition: background 0.35s ease, border-color 0.3s ease, box-shadow 0.35s ease;
+}
+
+.pdrop-card:hover {
+  background: rgba(255, 255, 255, 0.055);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.pdrop-card.is-open {
+  background: rgba(255, 255, 255, 0.065);
+  border-color: rgba(255, 255, 255, 0.24);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15), 0 0 20px rgba(255, 255, 255, 0.03);
+}
+
+/* Top accent orange line */
+.pdrop-accent-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--orange, #ff630f);
+  transform-origin: left center;
+  transform: scaleX(0);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Header trigger */
+.pdrop-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px 30px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font-family: inherit;
+}
+
+.pdrop-header:focus-visible {
+  outline: 2px solid var(--orange, #ff630f);
+  outline-offset: -2px;
+}
+
+.pdrop-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pdrop-title {
+  margin: 0;
+  font: 500 clamp(22px, 2.5cqw, 32px)/1.1 var(--d);
+  letter-spacing: -0.025em;
+  color: #fff;
+  transition: color 0.25s ease;
+}
+
+.pdrop-desc {
+  margin: 0;
+  font: 400 13.5px/1.55 var(--u);
+  color: var(--muted);
+  max-width: 620px;
+}
+
+/* Actions: count pill + toggle button */
+.pdrop-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.pdrop-count {
+  display: inline-flex;
+  align-items: center;
+  font: 400 13px var(--u);
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  background: none;
+  border: none;
+  padding: 0 4px;
+  white-space: nowrap;
+  transition: color 0.25s ease;
+}
+
+.pdrop-header:hover .pdrop-count,
+.pdrop-card.is-open .pdrop-count {
+  color: var(--muted3);
+}
+
+/* Toggle button — exactly styled like .sm-toggle from StaggeredMenu */
+.pdrop-toggle-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 0 18px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.25);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  font: 400 14px/1 var(--u);
+  letter-spacing: 0;
+  color: #fff;
+  transition: border-color 0.25s ease, background 0.25s ease;
+  user-select: none;
+}
+
+.pdrop-card.is-open .pdrop-toggle-btn,
+.pdrop-header:hover .pdrop-toggle-btn {
+  border-color: var(--orange, #ff630f);
+}
+
+.pdrop-text-wrap {
+  position: relative;
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.pdrop-text-inner {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.pdrop-text-line {
+  display: block;
+  height: 1em;
+  line-height: 1;
+}
+
+/* Menu plus/cross icon */
+.pdrop-icon {
+  position: relative;
+  flex: 0 0 13px;
+  width: 13px;
+  height: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+}
+
+.pdrop-icon-line {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+}
+
+.pdrop-icon-v {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+/* Body & table list */
+.pdrop-body {
+  overflow: hidden;
+  height: 0;
+  opacity: 0;
+}
+
+.pdrop-inner {
+  padding: 0 30px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.pdrop-inner .th {
+  padding-top: 16px;
+  margin-bottom: 4px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.pdrop-inner .row {
+  border-radius: 8px;
+  background: transparent;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 16px 14px;
+}
+
+.pdrop-inner .row:hover {
+  background: #fff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .pdrop-header {
+    padding: 20px 22px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .pdrop-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .pdrop-inner {
+    padding: 0 18px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pdrop-top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .pdrop-header {
+    padding: 16px;
+  }
+  .pdrop-title {
+    font-size: 20px;
+  }
+  .pdrop-desc {
+    font-size: 12px;
+  }
+  .pdrop-toggle-btn {
+    min-height: 38px;
+    padding: 0 14px;
+    font-size: 13px;
+  }
+}
+

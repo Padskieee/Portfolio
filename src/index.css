@@ -1,19 +1,210 @@
-* {
-  box-sizing: border-box;
-}
-
-html,
-body,
-#root {
+html, body {
   margin: 0;
   padding: 0;
-  min-height: 100%;
 }
 
-html {
-  scroll-behavior: smooth;
+.pf .about {
+  min-height: 0;
+  padding-bottom: 40px;
+}
+.pf .about .meta {
+  margin-top: 70px;   /* jarak headline ke teks, ubah sesuai selera */
+  padding-top: 0;
+}
+@media (max-width: 700px) {
+  .pf .about .meta { margin-top: 55px; }
 }
 
-body {
-  background: #0b0b0c;
+.pf .wt {
+  container-type: inline-size;
+  margin: 48px 0 8px;
+}
+
+/* Two-column desktop layout */
+.ct .cg {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: clamp(32px, 8vw, 120px);
+  row-gap: 32px;
+  margin-top: 60px;
+}
+
+/* Left column: cat + description + CV */
+.contact-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.contact-intro .animated-cat {
+  display: block;
+  width: 180px;
+  height: 180px;
+  max-width: 100%;
+  margin: 0 0 18px clamp(40px, 8vw, 75px);
+  overflow: visible;
+  flex-shrink: 0;
+}
+
+/* Description and CV */
+.contact-intro .cc {
+  width: 100%;
+  max-width: 440px;
+}
+
+.contact-intro .cc > p:first-child {
+  margin-top: 0;
+}
+
+.contact-intro .cc .s {
+  margin-top: 24px;
+}
+
+.contact-links {
+  min-width: 0;
+  padding-top: 270px;
+  justify-self: end;
+  margin-right: -40px;
+}
+
+.contact-links .em {
+  overflow-wrap: anywhere;
+}
+
+.contact-links .so {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 32px;
+}
+
+/* Orange cat */
+.orange-cat {
+  filter: hue-rotate(62deg) saturate(1.15);
+}
+
+/* ========================================
+   TABLET
+======================================== */
+
+@media (max-width: 900px) {
+  .ct .cg {
+    column-gap: 32px;
+  }
+
+  .contact-intro .animated-cat {
+    width: 160px;
+    height: 160px;
+  }
+
+  .contact-links {
+    padding-top: 178px;
+  }
+}
+
+/* ========================================
+   MOBILE
+======================================== */
+
+@media (max-width: 600px) {
+  .ct .cg {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 32px;
+    margin-top: 36px;
+  }
+
+  .contact-intro .animated-cat {
+    width: 155px;
+    height: 155px;
+    margin-bottom: 16px;
+  }
+
+  .contact-intro .cc {
+    max-width: 100%;
+  }
+
+  .contact-links {
+    width: 100%;
+    padding-top: 0;
+  }
+
+  .contact-links .so {
+    gap: 16px;
+    margin-top: 24px;
+  }
+}
+
+.nav .lets-talk-btn {
+  transform: translateY(-3px);
+}
+
+@media (max-width: 600px) {
+  .nav .lets-talk-btn {
+    transform: translateY(-3px);
+  }
+}
+
+/* Contact heading */
+.ct-title {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-size: clamp(4rem, 10vw, 9rem);
+  line-height: 0.95;
+  font-weight: 700;
+  overflow: visible;
+}
+
+.ct-title-line {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+
+.ct-title-main {
+  color: inherit;
+}
+
+.ct-title-accent {
+  color: #ff7a30;
+  margin-top: 0.02em;
+}
+
+.ct-title-line .tech-text {
+  display: block;
+  width: 100%;
+  height: 1.05em;
+  overflow: visible;
+}
+
+.ct-title-line canvas,
+.ct-title-line .tech-text-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+@media (max-width: 768px) {
+  .ct-title {
+    font-size: clamp(3rem, 11vw, 5.5rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .ct-title {
+    font-size: clamp(2.5rem, 10.5vw, 4rem);
+  }
+}
+
+.vp-mona {
+  font-family: "Mona Sans Variable", MonaSemi, "Arial Narrow", Arial, sans-serif;
+  font-stretch: 87.5%; /* semi-condensed */
 }
