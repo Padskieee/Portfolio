@@ -44,7 +44,7 @@ const PROJECTS = [
       "A web-based HR analytics and information system for managing " +
       "employee, department, and position data, with workforce insights" +
       " through interactive dashboards, data visualization, and " +
-      "reporting.",
+      "reporting. To explore the dashboard, use password: \"password\".",
   },
   {
     title: "FinTrack",

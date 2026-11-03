@@ -219,7 +219,7 @@ export const PROJECTS_ID = [
       "Manajemen Basis Data",
       "Dasbor",
     ],
-    text: "Sistem informasi dan analitik SDM berbasis web untuk mengelola data karyawan, departemen, dan jabatan, dilengkapi wawasan tenaga kerja melalui dasbor interaktif, visualisasi data, dan laporan.",
+    text: "Sistem informasi dan analitik SDM berbasis web untuk mengelola data karyawan, departemen, dan jabatan, dilengkapi wawasan tenaga kerja melalui dasbor interaktif, visualisasi data, dan laporan. Untuk melihat dasbor, gunakan password: \"password\".",
   },
   {
     kind: "Dasbor Keuangan",
