@@ -71,7 +71,7 @@ const PROJECTS = [
     kind: "Business Analytics Tool",
     cat: "Business Analytics",
     image: "images/profit-riddle.png",
-    url: "",
+    url: "https://profit-riddle.vercel.app/",
     tech: ["React", "TypeScript", "Vite", "Tailwind CSS", "Node.js"],
     tags: [
       "Business Analytics",
@@ -1243,14 +1243,66 @@ const CSS = `
   font: 400 20px/1.25 var(--u);
 }
 .cs .art {
+  position: relative;
+  display: block;
   margin: 36px auto;
   max-width: 640px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #333;
+  transition: border-color 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+.cs .art.art-link {
+  cursor: pointer;
+  text-decoration: none;
+}
+.cs .art.art-link:hover {
+  border-color: var(--orange, #ff630f);
+  box-shadow: 0 12px 36px rgba(255, 99, 15, 0.2), 0 4px 16px rgba(0, 0, 0, 0.6);
+  transform: translateY(-2px);
 }
 .cs .art img {
   display: block;
   width: 100%;
   height: auto;
-  border: 1px solid #333;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
+}
+.cs .art.art-link:hover img {
+  transform: scale(1.025);
+  filter: brightness(0.78);
+}
+.cs .art-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.32);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+.cs .art.art-link:hover .art-overlay {
+  opacity: 1;
+}
+.cs .art-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 999px;
+  background: #fff;
+  color: #000;
+  font: 500 15px/1 var(--u, Arial, sans-serif);
+  letter-spacing: 0.02em;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  transform: translateY(8px) scale(0.95);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, color 0.2s ease;
+}
+.cs .art.art-link:hover .art-badge {
+  transform: translateY(0) scale(1);
 }
 .cm {
   display: grid;
@@ -2754,9 +2806,24 @@ export default function App() {
             </div>
             <h2 id="cs-title">{P.title}</h2>
             <p className="sm">{P.text}</p>
-            <div className="art">
-              <img src={asset(P.image)} alt={`${P.title} preview`} />
-            </div>
+            {P.url ? (
+              <a
+                className="art art-link"
+                href={P.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={t.openProject}
+              >
+                <img src={asset(P.image)} alt={`${P.title} preview`} />
+                <span className="art-overlay" aria-hidden="true">
+                  <span className="art-badge">{t.openProject}</span>
+                </span>
+              </a>
+            ) : (
+              <div className="art">
+                <img src={asset(P.image)} alt={`${P.title} preview`} />
+              </div>
+            )}
             <dl className="cm">
               <div>
                 <dt>{t.type}</dt>
