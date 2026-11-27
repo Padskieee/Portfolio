@@ -473,6 +473,13 @@ export const StaggeredMenu = ({
       data-open={open || undefined}
     >
       <div
+        className="sm-backdrop"
+        aria-hidden="true"
+        onClick={closeOnClickAway ? closeMenu : undefined}
+        onWheel={(e) => e.stopPropagation()}
+      />
+
+      <div
         ref={preLayersRef}
         className="sm-prelayers"
         aria-hidden="true"
@@ -560,6 +567,7 @@ export const StaggeredMenu = ({
         id="staggered-menu-panel"
         ref={panelRef}
         className="staggered-menu-panel"
+        data-lenis-prevent
         aria-hidden={!open}
         inert={!open ? "" : undefined}
       >

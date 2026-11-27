@@ -10,8 +10,6 @@ export const COPY = {
     notes: [
       "Designing experiences that feel alive.",
     ],
-    explore: "Explore projects ↘",
-    scrollAria: "Scroll down to About",
 
     menu: {
       about: "About",
@@ -114,8 +112,6 @@ export const COPY = {
     notes: [
       "Merancang pengalaman yang terasa hidup.",
     ],
-    explore: "Lihat proyek ↘",
-    scrollAria: "Gulir ke bagian Tentang",
 
     menu: {
       about: "Tentang",

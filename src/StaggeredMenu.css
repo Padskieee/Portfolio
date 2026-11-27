@@ -16,6 +16,23 @@
   overflow: hidden;
 }
 
+/* page blur backdrop when menu is open */
+.pf .sm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.42);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s cubic-bezier(0.19, 1, 0.22, 1);
+}
+.pf .staggered-menu-wrapper[data-open] .sm-backdrop {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* header + toggle */
 .pf .staggered-menu-header {
   position: absolute;
@@ -132,6 +149,7 @@
   flex-direction: column;
   padding: 120px 3% 36px 40px;
   overflow-y: auto;
+  overscroll-behavior: contain;
   background: #000;
   border-left: 1px solid #333;
   pointer-events: auto;

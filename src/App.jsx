@@ -10,6 +10,13 @@ import FlexCarousel from "./components/ui/FlexCarousel";
 import { TECH_LOGOS, TechLogo } from "./components/ui/TechLogos";
 import Dither from "./components/ui/Dither";
 import ProjectDropdown from "./components/ui/ProjectDropdown";
+import Lenis from "lenis";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SuryaHeroAbout, SuryaProjects, SuryaProjectDetail } from "./components/SuryaScrollSections";
+import { FluidTrailOverlay } from "./components/FluidCursorEffect";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const asset = (p) => `${import.meta.env.BASE_URL}${p.replace(/^\//, "")}`;
 
@@ -2095,10 +2102,10 @@ function LangSwitch({ lang, setLang, label }) {
 
 export default function App() {
   const clock = useClock();
-  const heroRef = useRef(null);
+  const lenisRef = useRef(null);
   const dlg = useRef(null);
   const [proj, setProj] = useState(null);
-  const [heroKey, setHeroKey] = useState(0);
+  const [heroKey] = useState(0);
   const [certIdx, setCertIdx] = useState(0);
   const [certZoomed, setCertZoomed] = useState(false);
   const [lang, setLang] = useState(() => {
@@ -2176,22 +2183,113 @@ export default function App() {
     document.documentElement.classList.add("js");
   }, []);
 
-  // replay the title entrance when the hero returns after fully leaving the viewport
+  // Smooth damped virtual scroll (Lenis) + GSAP ScrollTrigger sync + Curtain reveal between Projects and Skills
   useEffect(() => {
-    const h = heroRef.current;
-    let out = false;
-    const io = new IntersectionObserver(
-      ([e]) => {
-        if (e.intersectionRatio === 0) out = true;
-        else if (out && e.intersectionRatio >= 0.2) {
-          out = false;
-          setHeroKey((k) => k + 1);
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return;
+
+    const lenis = new Lenis({
+      lerp: 0.048,
+      smoothWheel: true,
+      wheelMultiplier: 0.85,
+      touchMultiplier: 1.1,
+    });
+    lenisRef.current = lenis;
+
+    lenis.on("scroll", ScrollTrigger.update);
+    const tick = (time) => lenis.raf(time * 1000);
+    gsap.ticker.add(tick);
+    gsap.ticker.lagSmoothing(0);
+
+    // Curtain reveal + layered parallax between #projects and #skills (WHAT I BRING TO A TEAM)
+    const skillsEl = document.getElementById("skills");
+    const projectsEl = document.getElementById("projects");
+    let ctx;
+    if (skillsEl && projectsEl) {
+      ctx = gsap.context(() => {
+        // 1. Curtain parallax: #skills rises smoothly from behind #projects
+        gsap.fromTo(
+          skillsEl,
+          { y: () => -(window.innerHeight * 0.32) },
+          {
+            y: 0,
+            ease: "none",
+            scrollTrigger: {
+              trigger: projectsEl,
+              start: "bottom bottom",
+              end: "bottom top",
+              scrub: true,
+              invalidateOnRefresh: true,
+            },
+          }
+        );
+
+        // 2. Multi-layer parallax inside #skills (Dither backdrop vs foreground content)
+        const ditherBg = skillsEl.querySelector(".skills-dither-bg");
+        const skillsHeading = skillsEl.querySelector(".sh2");
+        const skillsGrid = skillsEl.querySelector(".sk-grid");
+
+        if (ditherBg) {
+          gsap.fromTo(
+            ditherBg,
+            { yPercent: -12, scale: 1.12 },
+            {
+              yPercent: 8,
+              scale: 1.04,
+              ease: "none",
+              scrollTrigger: {
+                trigger: skillsEl,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: true,
+              },
+            }
+          );
         }
-      },
-      { threshold: [0, 0.2] },
-    );
-    io.observe(h);
-    return () => io.disconnect();
+
+        if (skillsHeading) {
+          gsap.fromTo(
+            skillsHeading,
+            { y: 56, opacity: 0.35 },
+            {
+              y: 0,
+              opacity: 1,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: skillsEl,
+                start: "top 90%",
+                end: "top 32%",
+                scrub: true,
+              },
+            }
+          );
+        }
+
+        if (skillsGrid) {
+          gsap.fromTo(
+            skillsGrid,
+            { y: 72 },
+            {
+              y: 0,
+              ease: "none",
+              scrollTrigger: {
+                trigger: skillsEl,
+                start: "top 85%",
+                end: "top 20%",
+                scrub: true,
+              },
+            }
+          );
+        }
+      });
+    }
+
+    return () => {
+      if (ctx) ctx.revert();
+      gsap.ticker.remove(tick);
+      lenis.destroy();
+      lenisRef.current = null;
+    };
   }, []);
 
   // reveal sections once
@@ -2210,20 +2308,6 @@ export default function App() {
     return () => io.disconnect();
   }, []);
 
-  // hero scroll parallax
-  useEffect(() => {
-    const onScroll = () => {
-      const h = heroRef.current;
-      if (!h) return;
-      const r = h.getBoundingClientRect();
-      const p = Math.min(Math.max(-r.top / r.height, 0), 1);
-      h.style.setProperty("--py", `${p * -7}%`);
-      h.style.setProperty("--z", String(1 + p * 0.2));
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
   // case-study dialog
   useEffect(() => {
     const d = dlg.current;
@@ -2235,12 +2319,14 @@ export default function App() {
   const goto = (e, href) => {
     e.preventDefault();
     const el = document.querySelector(href);
-    el?.scrollIntoView({
-      behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
-        ? "auto"
-        : "smooth",
-    });
-    el?.focus?.({ preventScroll: true });
+    if (!el) return;
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (lenisRef.current && !reduced) {
+      lenisRef.current.scrollTo(el, { duration: 1.25 });
+    } else {
+      el.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+    }
+    el.focus?.({ preventScroll: true });
   };
 
   // fade the project detail out before actually closing it
@@ -2267,7 +2353,7 @@ export default function App() {
   return (
     <div className="pf">
       <style>{CSS}</style>
-      <Cursor />
+      <FluidTrailOverlay />
       <StaggeredMenu
         isFixed
         position="right"
@@ -2292,7 +2378,12 @@ export default function App() {
         panelExtra={
           <LangSwitch lang={lang} setLang={setLang} label={t.langLabel} />
         }
-        onItemClick={(e, it) => goto(e, it.link)}
+        onMenuOpen={() => lenisRef.current?.stop()}
+        onMenuClose={() => lenisRef.current?.start()}
+        onItemClick={(e, it) => {
+          lenisRef.current?.start();
+          goto(e, it.link);
+        }}
       />
       <a
         className="skip"
@@ -2303,222 +2394,27 @@ export default function App() {
       </a>
 
       <main id="top">
-        {/* HERO */}
-        <section
-          className="hero"
-          ref={heroRef}
-          style={{ "--img": `url("${asset("images/profile.jpg?v=2")}")` }}
-          onMouseMove={(e) => {
-            if (
-              !matchMedia("(pointer:fine)").matches ||
-              e.target.closest("a,button")
-            )
-              return;
-            const r = e.currentTarget.getBoundingClientRect();
-            const x = (e.clientX - r.left) / r.width,
-              y = (e.clientY - r.top) / r.height;
-            const on = x > 0.3 && x < 0.8 && y < 0.65;
-            e.currentTarget
-              .querySelector(".hero-bg")
-              .style.setProperty("--z", on ? "1.035" : "1");
-          }}
-          onMouseLeave={(e) =>
-            e.currentTarget
-              .querySelector(".hero-bg")
-              .style.setProperty("--z", "1")
-          }
-        >
-          <div
-            className="hero-bg"
-            aria-hidden="true"
-            style={{ backgroundImage: `url("${asset("images/profile.jpg?v=2")}")` }}
-          >
-            <HeroGL heroRef={heroRef} src={asset("images/profile.jpg?v=2")} />
-          </div>
-          <div className="hero-ov" aria-hidden="true" />
+        {/* HERO & PINNED ABOUT (surya-aditya.com style portrait zoom + pin) */}
+        <SuryaHeroAbout
+          t={t}
+          lang={lang}
+          clock={clock}
+          asset={asset}
+          goto={goto}
+          heroKey={heroKey}
+          Letters={Letters}
+          VariableProximity={VariableProximity}
+          CircularText={CircularText}
+        />
 
-          <header className="nav">
-            <div className="clock" aria-label={t.clockLabel}>
-              <small>{clock.zone}</small>
-              <span>{clock.time}</span>
-            </div>
-          </header>
-
-          <div className="ident">
-            <h1 className="ht" key={heroKey}>
-              <span className="sr">Ifadah Aulia</span>
-              <span className="mono" aria-hidden="true">
-                <Letters text="IA" start={0.38} />
-              </span>
-              <span className="nm" aria-hidden="true">
-                <span className="f">
-                  <Letters text="Ifadah" start={0.58} />
-                </span>
-                <span>
-                  <Letters text="Aulia" start={1.08} />
-                </span>
-              </span>
-            </h1>
-            <div className="sub">
-              <span>{t.sub}</span>
-              <span>{t.subRight}</span>
-            </div>
-          </div>
-          <a
-            className="arrow"
-            style={{ left: "70%", top: 330 }}
-            href="#about"
-            aria-label={t.scrollAria}
-            onClick={(e) => goto(e, "#about")}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 4v15M5 12l7 7 7-7" />
-            </svg>
-          </a>
-          <div className="vl" aria-hidden="true">
-            {t.vl}
-          </div>
-          <div className="notes">
-            {t.notes.map((n) => (
-              <p key={n}>{n}</p>
-            ))}
-          </div>
-          <a
-            className="pill hx"
-            href="#projects"
-            onClick={(e) => goto(e, "#projects")}
-          >
-            {t.explore}
-          </a>
-        </section>
-
-        {/* ABOUT */}
-        <section className="about rv" id="about" tabIndex={-1}>
-          <div className="eb">{t.aboutLabel}</div>
-
-          <p className="st">
-            {t.statement.map((line) => (
-              <span key={line}>
-                <VariableProximity
-                  className="vp-mona"
-                  label={line}
-                  fromFontVariationSettings="'wght' 500"
-                  toFontVariationSettings="'wght' 850"
-                  radius={170}
-                  falloff="gaussian"
-                  smoothing={0.25}
-                  idleWave
-                />
-              </span>
-            ))}
-          </p>
-
-          <div className="meta">
-            <div>
-              {t.about.map((para) => (
-                <p key={para}>{para}</p>
-              ))}
-            </div>
-
-            <div
-            className="ab-focus"
-            style={{ justifySelf: "end", display: "flex", justifyContent: "flex-end" }}
-            >
-              <CircularText
-                text={`${t.tags.join(" • ").toUpperCase()} • `}
-                size={220}
-                fontSize={20}
-                fontWeight={900}
-                fill={false}
-                letterSpacing={0.04}
-                spinDuration={22}
-                onHover="speedUp"
-                hoverTilt={8}
-                draggable
-                color="var(--orange)"
-              >
-                <span
-                  style={{
-                    fontSize: 11,
-                    letterSpacing: "0.18em",
-                    textTransform: "uppercase",
-                    textAlign: "center",
-                    color: "#fff",
-                    opacity: 0.7,
-                  }}
-                >
-                  {t.focusTitle}
-                </span>
-              </CircularText>
-            </div>
-          </div>
-        </section>
-
-        {/* PROJECTS */}
-        <section className="work" id="projects" tabIndex={-1}>
-          <div className="wt">
-            <div className="sh2">
-              <AnimatedText
-                lines={[
-                  { text: t.projectsH1 ?? "FEATURED" },
-                  { text: t.projectsH2 ?? "PROJECTS.", className: "or" },
-                ]}
-              />
-            </div>
-          </div>
-          {/* Project Dropdown Accordions */}
-          <div className="pdrop-container">
-            <div className="pdrop-top-bar">
-              <span className="pdrop-summary">
-                {t.projSummary?.(projectGroups.length, projects.length)}
-              </span>
-              <button
-                type="button"
-                className="pdrop-expand-btn"
-                onClick={allOpen ? collapseAllGroups : expandAllGroups}
-                aria-label={allOpen ? t.collapseAll : t.expandAll}
-              >
-                <span>{allOpen ? t.collapseAll : t.expandAll}</span>
-                <span style={{ fontSize: 13, lineHeight: 1 }}>{allOpen ? "−" : "+"}</span>
-              </button>
-            </div>
-
-            {projectGroups.map((group) => (
-              <ProjectDropdown
-                key={group.id}
-                group={group}
-                isOpen={Boolean(openGroups[group.id])}
-                onToggle={() => toggleGroup(group.id)}
-                onSelectProject={(originalIndex) => setProj(originalIndex)}
-                openLabel={t.openCategory ?? "View"}
-                closeLabel={t.closeCategory ?? "Close"}
-                countText={t.projCount(group.items.length)}
-                colProject={t.colProject}
-                colDiscipline={t.colDiscipline}
-                openAria={t.openAria}
-                asset={asset}
-              />
-            ))}
-          </div>
-          <div className="wb">
-            <span>{t.haveProject}</span>
-            <a
-              className="pill"
-              href="#contact"
-              onClick={(e) => goto(e, "#contact")}
-            >
-              {t.startConv}
-            </a>
-          </div>
-        </section>
+        {/* PROJECTS (white sheet sliding over Hero/About, lifting as curtain over Skills) */}
+        <SuryaProjects
+          t={t}
+          projects={projects}
+          setProj={setProj}
+          goto={goto}
+          asset={asset}
+        />
 
         {/* SKILLS */}
         <section className="svc svc-skills" id="skills" tabIndex={-1}>
@@ -2771,92 +2667,13 @@ export default function App() {
         </section>
       </main>
 
-      <dialog
-        ref={dlg}
-        aria-labelledby="cs-title"
-        onClose={() => setProj(null)}
-        onCancel={(e) => {
-          e.preventDefault();
-          closeProj();
-        }}
-        onClick={(e) => {
-          const r = e.currentTarget.getBoundingClientRect();
-          if (
-            e.clientX < r.left ||
-            e.clientX > r.right ||
-            e.clientY < r.top ||
-            e.clientY > r.bottom
-          )
-            closeProj();
-        }}
-      >
-        {P && (
-          <div className="cs">
-            <div className="ctb">
-              <span>
-                {t.caseStudy} / {String(proj + 1).padStart(2, "0")}
-              </span>
-              <button
-                className="cx"
-                onClick={closeProj}
-                aria-label={t.closeCase}
-              >
-                ×
-              </button>
-            </div>
-            <h2 id="cs-title">{P.title}</h2>
-            <p className="sm">{P.text}</p>
-            {P.url ? (
-              <a
-                className="art art-link"
-                href={P.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                title={t.openProject}
-              >
-                <img src={asset(P.image)} alt={`${P.title} preview`} />
-                <span className="art-overlay" aria-hidden="true">
-                  <span className="art-badge">{t.openProject}</span>
-                </span>
-              </a>
-            ) : (
-              <div className="art">
-                <img src={asset(P.image)} alt={`${P.title} preview`} />
-              </div>
-            )}
-            <dl className="cm">
-              <div>
-                <dt>{t.type}</dt>
-                <dd>{P.kind}</dd>
-              </div>
-              <div>
-                <dt>{t.focus}</dt>
-                <dd>{P.cat}</dd>
-              </div>
-            </dl>
-            <div className="cp">
-              <h3>{t.techStack}</h3>
-              <p>{P.tech.join(" / ")}</p>
-            </div>
-            <div className="cp">
-              <h3>{t.highlights}</h3>
-              <p>{P.tags.join(" / ")}</p>
-            </div>
-            {P.url && (
-              <p style={{ marginTop: 22 }}>
-                <a
-                  className="pill"
-                  href={P.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {t.openProject}
-                </a>
-              </p>
-            )}
-          </div>
-        )}
-      </dialog>
+      <SuryaProjectDetail
+        proj={proj}
+        projects={projects}
+        setProj={setProj}
+        t={t}
+        asset={asset}
+      />
     </div>
   );
 }
